@@ -17,7 +17,6 @@ import { ReservationTimeline } from './components/ReservationTimeline';
 
 export function ReservationStatusPage() {
   const navigate = useNavigate();
-
   const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'));
 
   return (
