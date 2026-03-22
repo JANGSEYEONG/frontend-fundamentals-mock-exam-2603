@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Border, Button, Spacing, Text } from '_tosslib/components';
 import { colors } from '_tosslib/constants/colors';
+import { format } from 'date-fns';
 import { cancelReservation } from 'pages/remotes';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -9,7 +10,6 @@ import { MessageBanner } from 'shared/components/MessageBanner';
 import { PageLayout } from 'shared/components/PageLayout';
 import * as pageStyles from 'shared/components/PageLayout/PageLayout.styles';
 import { Section } from 'shared/components/Section';
-import { formatDate } from '../models';
 import { myReservationsQueryOptions } from '../queries';
 import { MyReservationList } from './components/MyReservationList';
 import { ReservationTimeline } from './components/ReservationTimeline';
@@ -17,7 +17,8 @@ import { ReservationTimeline } from './components/ReservationTimeline';
 export function ReservationStatusPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [date, setDate] = useState(formatDate(new Date()));
+
+  const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'));
 
   const locationState = location.state as { message?: string } | null;
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(
@@ -50,7 +51,7 @@ export function ReservationStatusPage() {
         <Input
           type="date"
           value={date}
-          min={formatDate(new Date())}
+          min={format(new Date(), 'yyyy-MM-dd')}
           onChange={e => setDate(e.target.value)}
           aria-label="날짜"
         />

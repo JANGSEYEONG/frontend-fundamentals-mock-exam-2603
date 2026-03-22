@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Border, Button, Select, Spacing, Text } from '_tosslib/components';
 import { colors } from '_tosslib/constants/colors';
 import axios from 'axios';
+import { format } from 'date-fns';
 import { createReservation } from 'pages/remotes';
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -14,7 +15,7 @@ import { MessageBanner } from 'shared/components/MessageBanner';
 import { PageLayout } from 'shared/components/PageLayout';
 import * as pageStyles from 'shared/components/PageLayout/PageLayout.styles';
 import { Section } from 'shared/components/Section';
-import { ALL_EQUIPMENT, EQUIPMENT_LABELS, formatDate, TIME_SLOTS } from '../models';
+import { ALL_EQUIPMENT, EQUIPMENT_LABELS, TIME_SLOTS } from '../models';
 import { reservationsQueryOptions, roomsQueryOptions } from '../queries';
 import { RoomList } from './components/RoomList';
 import * as styles from './RoomBookingPage.styles';
@@ -24,7 +25,7 @@ export function RoomBookingPage() {
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const [date, setDate] = useState(searchParams.get('date') || formatDate(new Date()));
+  const [date, setDate] = useState(searchParams.get('date') || format(new Date(), 'yyyy-MM-dd'));
   const [startTime, setStartTime] = useState(searchParams.get('startTime') || '');
   const [endTime, setEndTime] = useState(searchParams.get('endTime') || '');
   const [attendees, setAttendees] = useState(Number(searchParams.get('attendees')) || 1);
@@ -169,7 +170,7 @@ export function RoomBookingPage() {
             <Input
               type="date"
               value={date}
-              min={formatDate(new Date())}
+              min={format(new Date(), 'yyyy-MM-dd')}
               onChange={e => {
                 setDate(e.target.value);
                 handleFilterChange();
