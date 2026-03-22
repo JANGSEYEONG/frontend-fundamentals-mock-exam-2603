@@ -6,14 +6,16 @@ import axios from 'axios';
 import { createReservation, getReservations, getRooms } from 'pages/remotes';
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import * as pageStyles from 'shared/components/PageLayout/PageLayout.styles';
 
+import { ChipToggle } from 'shared/components/ChipToggle';
 import { FormField } from 'shared/components/FormField';
 import { Input } from 'shared/components/Input';
 import { MessageBanner } from 'shared/components/MessageBanner';
 import { PageLayout } from 'shared/components/PageLayout';
-import * as pageStyles from 'shared/components/PageLayout/PageLayout.styles';
 import { Section } from 'shared/components/Section';
 import { ALL_EQUIPMENT, EQUIPMENT_LABELS, formatDate, TIME_SLOTS } from '../constants';
+import { ErrorText } from 'shared/components/ErrorText';
 
 export function RoomBookingPage() {
   const navigate = useNavigate();
@@ -317,33 +319,16 @@ export function RoomBookingPage() {
               {ALL_EQUIPMENT.map(eq => {
                 const selected = equipment.includes(eq);
                 return (
-                  <button
+                  <ChipToggle
                     key={eq}
-                    type="button"
+                    selected={selected}
+                    label={EQUIPMENT_LABELS[eq]}
                     onClick={() => {
                       const next = selected ? equipment.filter(e => e !== eq) : [...equipment, eq];
                       setEquipment(next);
                       handleFilterChange();
                     }}
-                    aria-label={EQUIPMENT_LABELS[eq]}
-                    aria-pressed={selected}
-                    css={css`
-                      padding: 8px 16px;
-                      border-radius: 20px;
-                      border: 1px solid ${selected ? colors.blue500 : colors.grey200};
-                      background: ${selected ? colors.blue50 : colors.grey50};
-                      color: ${selected ? colors.blue600 : colors.grey700};
-                      font-size: 14px;
-                      font-weight: 500;
-                      cursor: pointer;
-                      transition: all 0.15s;
-                      &:hover {
-                        border-color: ${selected ? colors.blue500 : colors.grey400};
-                      }
-                    `}
-                  >
-                    {EQUIPMENT_LABELS[eq]}
-                  </button>
+                  />
                 );
               })}
             </div>
@@ -351,21 +336,9 @@ export function RoomBookingPage() {
         </Section>
 
         {validationError && (
-          <div
-            css={css`
-              padding: 0 24px;
-            `}
-          >
+          <div css={pageStyles.inset}>
             <Spacing size={8} />
-            <span
-              css={css`
-                color: ${colors.red500};
-                font-size: 14px;
-              `}
-              role="alert"
-            >
-              {validationError}
-            </span>
+            <ErrorText message={validationError} />
           </div>
         )}
 
