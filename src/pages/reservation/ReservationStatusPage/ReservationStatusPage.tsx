@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Border, Button, Spacing, Text } from '_tosslib/components';
 import { colors } from '_tosslib/constants/colors';
-import { cancelReservation, getMyReservations } from 'pages/remotes';
+import { cancelReservation } from 'pages/remotes';
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Input } from 'shared/components/Input';
@@ -10,6 +10,7 @@ import { PageLayout } from 'shared/components/PageLayout';
 import * as pageStyles from 'shared/components/PageLayout/PageLayout.styles';
 import { Section } from 'shared/components/Section';
 import { formatDate } from '../models';
+import { myReservationsQueryOptions } from '../queries';
 import { MyReservationList } from './components/MyReservationList';
 import { ReservationTimeline } from './components/ReservationTimeline';
 
@@ -38,7 +39,7 @@ export function ReservationStatusPage() {
     }
   }, [locationState]);
 
-  const { data: myReservationList = [] } = useQuery({ queryKey: ['myReservations'], queryFn: getMyReservations });
+  const { data: myReservationList = [] } = useQuery(myReservationsQueryOptions());
 
   return (
     <PageLayout title="회의실 예약">

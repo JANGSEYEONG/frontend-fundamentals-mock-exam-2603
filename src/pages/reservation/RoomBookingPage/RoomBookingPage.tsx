@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Border, Button, Select, Spacing, Text } from '_tosslib/components';
 import { colors } from '_tosslib/constants/colors';
 import axios from 'axios';
-import { createReservation, getReservations, getRooms } from 'pages/remotes';
+import { createReservation } from 'pages/remotes';
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ChipToggle } from 'shared/components/ChipToggle';
@@ -15,6 +15,7 @@ import { PageLayout } from 'shared/components/PageLayout';
 import * as pageStyles from 'shared/components/PageLayout/PageLayout.styles';
 import { Section } from 'shared/components/Section';
 import { ALL_EQUIPMENT, EQUIPMENT_LABELS, formatDate, TIME_SLOTS } from '../models';
+import { reservationsQueryOptions, roomsQueryOptions } from '../queries';
 import { RoomList } from './components/RoomList';
 import * as styles from './RoomBookingPage.styles';
 
@@ -48,10 +49,9 @@ export function RoomBookingPage() {
     setSearchParams(params, { replace: true });
   }, [date, startTime, endTime, attendees, equipment, preferredFloor, setSearchParams]);
 
-  const { data: rooms = [] } = useQuery({ queryKey: ['rooms'], queryFn: getRooms });
+  const { data: rooms = [] } = useQuery(roomsQueryOptions());
   const { data: reservations = [] } = useQuery({
-    queryKey: ['reservations', date],
-    queryFn: () => getReservations(date),
+    ...reservationsQueryOptions(date),
     enabled: !!date,
   });
 

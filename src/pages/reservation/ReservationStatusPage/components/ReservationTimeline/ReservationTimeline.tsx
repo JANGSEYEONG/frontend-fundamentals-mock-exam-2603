@@ -2,9 +2,10 @@ import { css } from '@emotion/react';
 import { useQuery } from '@tanstack/react-query';
 import { Text } from '_tosslib/components';
 import { colors } from '_tosslib/constants/colors';
-import { getReservations, getRooms } from 'pages/remotes';
-import { EQUIPMENT_LABELS, HOUR_LABELS, TIMELINE_START, TOTAL_MINUTES } from 'pages/reservation/models';
+import { EQUIPMENT_LABELS } from 'pages/reservation/models';
+import { reservationsQueryOptions, roomsQueryOptions } from 'pages/reservation/queries';
 import { useState } from 'react';
+import { HOUR_LABELS, TIMELINE_START, TOTAL_MINUTES } from './ReservationTimeline.constants';
 
 function timeToMinutes(time: string): number {
   const [h, m] = time.split(':').map(Number);
@@ -16,10 +17,9 @@ interface ReservationTimelineProps {
 }
 export function ReservationTimeline({ date }: ReservationTimelineProps) {
   const [activeReservation, setActiveReservation] = useState<string | null>(null);
-  const { data: rooms = [] } = useQuery({ queryKey: ['rooms'], queryFn: getRooms });
+  const { data: rooms = [] } = useQuery(roomsQueryOptions());
   const { data: reservations = [] } = useQuery({
-    queryKey: ['reservations', date],
-    queryFn: () => getReservations(date),
+    ...reservationsQueryOptions(date),
     enabled: !!date,
   });
   return (
