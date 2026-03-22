@@ -31,6 +31,7 @@ export default defineConfig({
       remotes: path.resolve(__dirname, 'src/remotes'),
       styles: path.resolve(__dirname, 'src/styles'),
       utils: path.resolve(__dirname, 'src/utils'),
+      shared: path.resolve(__dirname, 'src/shared'),
       hooks: path.resolve(__dirname, 'src/hooks'),
       stores: path.resolve(__dirname, 'src/stores'),
     },

@@ -3,7 +3,7 @@ import { css } from '@emotion/react';
 
 import { ReactNode } from 'react';
 
-export function PageLayout({ children }: { children: ReactNode }) {
+export function RootPageLayout({ children }: { children: ReactNode }) {
   return (
     <div
       css={css`
