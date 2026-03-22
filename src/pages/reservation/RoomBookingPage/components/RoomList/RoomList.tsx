@@ -1,16 +1,9 @@
 import { ListRow, Text } from '_tosslib/components';
 import { colors } from '_tosslib/constants/colors';
 
-import { EQUIPMENT_LABELS } from '../../../models';
-import * as styles from './RoomList.styles';
 import { EmptyState } from 'shared/components/EmptyState';
-interface Room {
-  id: string;
-  name: string;
-  floor: number;
-  capacity: number;
-  equipment: string[];
-}
+import { EQUIPMENT_LABELS, Room } from '../../../models';
+import * as styles from './RoomList.styles';
 
 interface RoomListProps {
   rooms: Room[];
