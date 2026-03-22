@@ -1,21 +1,22 @@
 import { css } from '@emotion/react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Border, Button, ListRow, Select, Spacing, Text } from '_tosslib/components';
+import { Border, Button, Select, Spacing, Text } from '_tosslib/components';
 import { colors } from '_tosslib/constants/colors';
 import axios from 'axios';
 import { createReservation, getReservations, getRooms } from 'pages/remotes';
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import * as pageStyles from 'shared/components/PageLayout/PageLayout.styles';
-
 import { ChipToggle } from 'shared/components/ChipToggle';
+import { ErrorText } from 'shared/components/ErrorText';
 import { FormField } from 'shared/components/FormField';
 import { Input } from 'shared/components/Input';
 import { MessageBanner } from 'shared/components/MessageBanner';
 import { PageLayout } from 'shared/components/PageLayout';
+import * as pageStyles from 'shared/components/PageLayout/PageLayout.styles';
 import { Section } from 'shared/components/Section';
 import { ALL_EQUIPMENT, EQUIPMENT_LABELS, formatDate, TIME_SLOTS } from '../constants';
-import { ErrorText } from 'shared/components/ErrorText';
+import { RoomList } from './components/RoomList';
+import * as styles from './RoomBookingPage.styles';
 
 export function RoomBookingPage() {
   const navigate = useNavigate();
@@ -146,27 +147,8 @@ export function RoomBookingPage() {
 
   return (
     <div>
-      <div
-        css={css`
-          padding: 12px 24px 0;
-        `}
-      >
-        <button
-          type="button"
-          onClick={() => navigate('/')}
-          aria-label="뒤로가기"
-          css={css`
-            background: none;
-            border: none;
-            padding: 0;
-            cursor: pointer;
-            font-size: 14px;
-            color: ${colors.grey600};
-            &:hover {
-              color: ${colors.grey900};
-            }
-          `}
-        >
+      <div css={styles.backArea}>
+        <button type="button" onClick={() => navigate('/')} aria-label="뒤로가기" css={styles.backButton}>
           ← 예약 현황으로
         </button>
       </div>
@@ -348,88 +330,30 @@ export function RoomBookingPage() {
 
         {/* 예약 가능 회의실 목록 */}
         {isFilterComplete && (
-          <Section
-            label="예약 가능 회의실"
-            right={
-              <Text typography="t7" fontWeight="medium" color={colors.grey500}>
-                {availableRooms.length}개
-              </Text>
-            }
-          >
-            {availableRooms.length === 0 ? (
-              <div
-                css={css`
-                  padding: 40px 0;
-                  text-align: center;
-                  background: ${colors.grey50};
-                  border-radius: 14px;
-                `}
-              >
-                <Text typography="t6" color={colors.grey500}>
-                  조건에 맞는 회의실이 없습니다.
+          <>
+            <Section
+              label="예약 가능 회의실"
+              right={
+                <Text typography="t7" fontWeight="medium" color={colors.grey500}>
+                  {availableRooms.length}개
                 </Text>
-              </div>
-            ) : (
-              <div
-                css={css`
-                  display: flex;
-                  flex-direction: column;
-                  gap: 10px;
-                `}
-              >
-                {availableRooms.map(
-                  (room: { id: string; name: string; floor: number; capacity: number; equipment: string[] }) => {
-                    const isSelected = selectedRoomId === room.id;
-                    return (
-                      <div
-                        key={room.id}
-                        onClick={() => setSelectedRoomId(room.id)}
-                        role="button"
-                        aria-pressed={isSelected}
-                        aria-label={room.name}
-                        css={css`
-                          cursor: pointer;
-                          padding: 14px 16px;
-                          border-radius: 14px;
-                          border: 2px solid ${isSelected ? colors.blue500 : colors.grey200};
-                          background: ${isSelected ? colors.blue50 : colors.white};
-                          transition: all 0.15s;
-                          &:hover {
-                            border-color: ${isSelected ? colors.blue500 : colors.grey300};
-                          }
-                        `}
-                      >
-                        <ListRow
-                          contents={
-                            <ListRow.Text2Rows
-                              top={room.name}
-                              topProps={{ typography: 't6', fontWeight: 'bold', color: colors.grey900 }}
-                              bottom={`${room.floor}층 · ${room.capacity}명 · ${room.equipment
-                                .map((e: string) => EQUIPMENT_LABELS[e])
-                                .join(', ')}`}
-                              bottomProps={{ typography: 't7', color: colors.grey600 }}
-                            />
-                          }
-                          right={
-                            isSelected ? (
-                              <Text typography="t7" fontWeight="bold" color={colors.blue500}>
-                                선택됨
-                              </Text>
-                            ) : undefined
-                          }
-                        />
-                      </div>
-                    );
-                  }
-                )}
-              </div>
-            )}
-
+              }
+            >
+              <RoomList
+                rooms={availableRooms}
+                selectedRoomId={selectedRoomId}
+                onSelect={roomId => {
+                  setSelectedRoomId(roomId);
+                }}
+              />
+            </Section>
             <Spacing size={16} />
-            <Button display="full" onClick={handleBook} disabled={createMutation.isLoading}>
-              {createMutation.isLoading ? '예약 중...' : '확정'}
-            </Button>
-          </Section>
+            <div css={pageStyles.inset}>
+              <Button display="full" onClick={handleBook} disabled={createMutation.isLoading}>
+                {createMutation.isPending ? '예약 중...' : '확정'}
+              </Button>
+            </div>
+          </>
         )}
       </PageLayout>
     </div>
