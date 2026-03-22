@@ -132,7 +132,7 @@ export function RoomBookingPage() {
     : [];
 
   // TODO: 유효성 체크는 zod + hook form에서 처리?
-  const handleBook = async () => {
+  const handleBook = () => {
     if (!selectedRoomId) {
       setErrorMessage('회의실을 선택해주세요.');
       return;
