@@ -4,6 +4,7 @@ import { Border, Button, Select, Spacing, Text } from '_tosslib/components';
 import { colors } from '_tosslib/constants/colors';
 import axios from 'axios';
 import { format } from 'date-fns';
+import { range } from 'es-toolkit';
 import { createReservation } from 'pages/remotes';
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
@@ -15,11 +16,17 @@ import { MessageBanner } from 'shared/components/MessageBanner';
 import { PageLayout } from 'shared/components/PageLayout';
 import * as pageStyles from 'shared/components/PageLayout/PageLayout.styles';
 import { Section } from 'shared/components/Section';
-import { ALL_EQUIPMENT, EQUIPMENT_LABELS, RESERVATION_TIMELINE_END, RESERVATION_TIMELINE_START } from '../models';
+import {
+  ALL_EQUIPMENT,
+  EQUIPMENT_LABELS,
+  Reservation,
+  RESERVATION_TIMELINE_END,
+  RESERVATION_TIMELINE_START,
+} from '../models';
 import { getMyReservationsQueryOptions, getReservationsQueryOptions, getRoomsQueryOptions } from '../queries';
 import { RoomList } from './components/RoomList';
 import * as styles from './RoomBookingPage.styles';
-import { range } from 'es-toolkit';
+import { createLocationMessageState } from 'shared/hooks/useLocationMessage';
 
 export function RoomBookingPage() {
   const navigate = useNavigate();
@@ -57,16 +64,32 @@ export function RoomBookingPage() {
     enabled: !!date,
   });
 
-  const createMutation = useMutation(
-    (data: { roomId: string; date: string; start: string; end: string; attendees: number; equipment: string[] }) =>
-      createReservation(data),
-    {
-      onSuccess: (_data, variables) => {
-        queryClient.invalidateQueries({ queryKey: getReservationsQueryOptions(variables.date).queryKey });
-        queryClient.invalidateQueries({ queryKey: getMyReservationsQueryOptions().queryKey });
-      },
-    }
-  );
+  const createMutation = useMutation((data: Omit<Reservation, 'id'>) => createReservation(data), {
+    onSuccess: (data, variables) => {
+      if (data.ok) {
+        navigate('/', {
+          state: createLocationMessageState({ message: '예약이 완료되었습니다!' }),
+        });
+
+        return;
+      }
+
+      setErrorMessage(data.message ?? '예약에 실패했습니다.');
+      setSelectedRoomId(null);
+
+      queryClient.invalidateQueries({ queryKey: getReservationsQueryOptions(variables.date).queryKey });
+      queryClient.invalidateQueries({ queryKey: getMyReservationsQueryOptions().queryKey });
+    },
+    onError: (error: unknown) => {
+      let serverMessage = '예약에 실패했습니다.';
+      if (axios.isAxiosError(error)) {
+        const data = error.response?.data as { message?: string } | undefined;
+        serverMessage = data?.message ?? serverMessage;
+      }
+      setErrorMessage(serverMessage);
+      setSelectedRoomId(null);
+    },
+  });
 
   // 필터 변경 시 선택 초기화
   const handleFilterChange = () => {
@@ -108,6 +131,7 @@ export function RoomBookingPage() {
         })
     : [];
 
+  // TODO: 유효성 체크는 zod + hook form에서 처리?
   const handleBook = async () => {
     if (!selectedRoomId) {
       setErrorMessage('회의실을 선택해주세요.');
@@ -118,33 +142,14 @@ export function RoomBookingPage() {
       return;
     }
 
-    try {
-      const result = await createMutation.mutateAsync({
-        roomId: selectedRoomId,
-        date,
-        start: startTime,
-        end: endTime,
-        attendees,
-        equipment,
-      });
-
-      if ('ok' in result && result.ok) {
-        navigate('/', { state: { message: '예약이 완료되었습니다!' } });
-        return;
-      }
-
-      const errResult = result as { message?: string };
-      setErrorMessage(errResult.message ?? '예약에 실패했습니다.');
-      setSelectedRoomId(null);
-    } catch (err: unknown) {
-      let serverMessage = '예약에 실패했습니다.';
-      if (axios.isAxiosError(err)) {
-        const data = err.response?.data as { message?: string } | undefined;
-        serverMessage = data?.message ?? serverMessage;
-      }
-      setErrorMessage(serverMessage);
-      setSelectedRoomId(null);
-    }
+    createMutation.mutate({
+      roomId: selectedRoomId,
+      date,
+      start: startTime,
+      end: endTime,
+      attendees,
+      equipment,
+    });
   };
 
   return (
@@ -349,9 +354,11 @@ export function RoomBookingPage() {
                 }}
               />
             </Section>
+
             <Spacing size={16} />
+
             <div css={pageStyles.inset}>
-              <Button display="full" onClick={handleBook} disabled={createMutation.isLoading}>
+              <Button display="full" onClick={handleBook} disabled={createMutation.isPending}>
                 {createMutation.isPending ? '예약 중...' : '확정'}
               </Button>
             </div>

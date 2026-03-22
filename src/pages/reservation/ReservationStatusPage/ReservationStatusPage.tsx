@@ -3,13 +3,15 @@ import { Border, Button, Spacing, Text } from '_tosslib/components';
 import { colors } from '_tosslib/constants/colors';
 import { format } from 'date-fns';
 import { cancelReservation } from 'pages/remotes';
-import { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Input } from 'shared/components/Input';
 import { MessageBanner } from 'shared/components/MessageBanner';
+import { Message } from 'shared/components/MessageBanner/MessageBanner';
 import { PageLayout } from 'shared/components/PageLayout';
 import * as pageStyles from 'shared/components/PageLayout/PageLayout.styles';
 import { Section } from 'shared/components/Section';
+import { useLocationMessage } from 'shared/hooks/useLocationMessage';
 import { Reservation } from '../models';
 import { getMyReservationsQueryOptions } from '../queries';
 import { MyReservationList } from './components/MyReservationList';
@@ -63,14 +65,11 @@ export function ReservationStatusPage() {
 function MyReservationSection() {
   const { data: myReservationList = [] } = useQuery(getMyReservationsQueryOptions());
 
-  const location = useLocation();
-  const locationState = location.state as { message?: string } | null;
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(
-    locationState?.message ? { type: 'success', text: locationState.message } : null
-  );
+  const { message: locationMessage } = useLocationMessage();
+  const [message, setMessage] = useState<Message | null>(null);
 
   const queryClient = useQueryClient();
-  const cancelMutation = useMutation((id: string) => cancelReservation(id), {
+  const cancelMutation = useMutation(cancelReservation, {
     onSuccess: () => {
       setMessage({ type: 'success', text: '예약이 취소되었습니다.' });
 
@@ -82,20 +81,26 @@ function MyReservationSection() {
     },
   });
 
-  useEffect(() => {
-    if (locationState?.message) {
-      window.history.replaceState({}, '');
-    }
-  }, [locationState]);
-
   return (
     <>
-      {message && (
-        <div css={pageStyles.inset}>
-          <MessageBanner message={message} />
-          <Spacing size={12} />
-        </div>
-      )}
+      {(() => {
+        if (message) {
+          return (
+            <div css={pageStyles.inset}>
+              <MessageBanner message={message} />
+              <Spacing size={12} />
+            </div>
+          );
+        }
+        if (locationMessage) {
+          return (
+            <div css={pageStyles.inset}>
+              <MessageBanner message={{ type: 'success', text: locationMessage }} />
+              <Spacing size={12} />
+            </div>
+          );
+        }
+      })()}
       <Section
         label="내 예약"
         right={
