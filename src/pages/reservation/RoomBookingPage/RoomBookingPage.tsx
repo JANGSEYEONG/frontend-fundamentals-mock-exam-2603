@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Border, Button, Spacing, Text } from '_tosslib/components';
 import { colors } from '_tosslib/constants/colors';
 import axios from 'axios';
+import { isNil } from 'es-toolkit';
 import { createReservation } from 'pages/remotes';
 import qs from 'qs';
 import { useState } from 'react';
@@ -12,7 +13,7 @@ import { PageLayout } from 'shared/components/PageLayout';
 import * as pageStyles from 'shared/components/PageLayout/PageLayout.styles';
 import { Section } from 'shared/components/Section';
 import { createLocationMessageState } from 'shared/hooks/useLocationMessage';
-import { Reservation } from '../models';
+import { Reservation, Room } from '../models';
 import { getMyReservationsQueryOptions, getReservationsQueryOptions, getRoomsQueryOptions } from '../queries';
 import { BookingFilterForm } from './components/BookingFilterForm';
 import { RoomList } from './components/RoomList';
@@ -41,7 +42,6 @@ export function RoomBookingPage() {
         navigate('/', {
           state: createLocationMessageState({ message: '예약이 완료되었습니다!' }),
         });
-
         return;
       }
 
@@ -84,21 +84,7 @@ export function RoomBookingPage() {
   }
   const isFilterComplete = hasTimeInputs && !validationError;
 
-  const availableRooms = (() => {
-    if (!isFilterComplete) return [];
-
-    return rooms
-      .filter(room => {
-        if (room.capacity < filter.attendees) return false;
-        if (!filter.equipment.every(eq => room.equipment.includes(eq))) return false;
-        if (filter.floor != null && room.floor !== filter.floor) return false;
-        const hasConflict = reservations.some(
-          r => r.roomId === room.id && r.date === filter.date && r.start < filter.endTime && r.end > filter.startTime
-        );
-        return !hasConflict;
-      })
-      .sort((a, b) => a.floor - b.floor || a.name.localeCompare(b.name));
-  })();
+  const availableRooms = isFilterComplete ? getAvailableRooms(rooms, reservations, filter) : [];
 
   const handleBook = () => {
     if (!selectedRoomId) {
@@ -203,3 +189,29 @@ export function stringifyFilterToQs(filter: BookingFilter): string {
 
   return qs.stringify(params);
 }
+
+function getAvailableRooms(rooms: Room[], reservations: Reservation[], filter: BookingFilter): Room[] {
+  return rooms
+    .filter(hasCapacity(filter.attendees))
+    .filter(hasEquipment(filter.equipment))
+    .filter(matchesFloor(filter.floor))
+    .filter(isReservationAvailable(reservations, filter.date, filter.startTime, filter.endTime))
+    .sort((a, b) => a.floor - b.floor || a.name.localeCompare(b.name));
+}
+
+const hasCapacity = (min: number) => (room: Room) => room.capacity >= min;
+
+const hasEquipment = (required: string[]) => (room: Room) =>
+  required.every(equipment => room.equipment.includes(equipment));
+
+const matchesFloor = (floor: number | null) => (room: Room) => isNil(floor) || room.floor === floor;
+
+const isReservationAvailable =
+  (reservations: Reservation[], date: string, startTime: string, endTime: string) => (room: Room) =>
+    !reservations.some(
+      reservation =>
+        reservation.roomId === room.id &&
+        reservation.date === date &&
+        reservation.start < endTime &&
+        reservation.end > startTime
+    );
