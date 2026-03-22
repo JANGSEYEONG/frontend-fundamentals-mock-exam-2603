@@ -24,7 +24,6 @@ export function ReservationStatusPage() {
     <PageLayout title="회의실 예약">
       <Spacing size={24} />
 
-      {/* 날짜 선택 */}
       <Section label="날짜 선택">
         <Input
           type="date"
@@ -39,7 +38,6 @@ export function ReservationStatusPage() {
       <Border size={8} />
       <Spacing size={24} />
 
-      {/* 예약 현황 타임라인 */}
       <Section label="예약 현황">
         <ReservationTimeline date={date} />
       </Section>
@@ -54,7 +52,6 @@ export function ReservationStatusPage() {
       <Border size={8} />
       <Spacing size={24} />
 
-      {/* 예약하기 버튼 */}
       <div css={pageStyles.inset}>
         <Button display="full" onClick={() => navigate('/booking')}>
           예약하기
