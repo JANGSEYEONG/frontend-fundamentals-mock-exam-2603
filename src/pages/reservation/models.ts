@@ -1,8 +1,5 @@
-import { range } from 'es-toolkit';
-
-export const TIME_SLOTS = range(9, 20)
-  .flatMap(h => [`${String(h).padStart(2, '0')}:00`, `${String(h).padStart(2, '0')}:30`])
-  .concat('20:00');
+export const RESERVATION_TIMELINE_START = 9;
+export const RESERVATION_TIMELINE_END = 20;
 
 export const EQUIPMENT_LABELS: Record<string, string> = {
   tv: 'TV',

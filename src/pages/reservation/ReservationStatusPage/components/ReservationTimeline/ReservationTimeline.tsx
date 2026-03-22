@@ -1,191 +1,72 @@
-import { css } from '@emotion/react';
-import { useQuery } from '@tanstack/react-query';
-import { Text } from '_tosslib/components';
-import { colors } from '_tosslib/constants/colors';
-import { EQUIPMENT_LABELS } from 'pages/reservation/models';
+import { useQueries } from '@tanstack/react-query';
+import {
+  EQUIPMENT_LABELS,
+  Reservation,
+  RESERVATION_TIMELINE_END,
+  RESERVATION_TIMELINE_START,
+} from 'pages/reservation/models';
 import { getReservationsQueryOptions, getRoomsQueryOptions } from 'pages/reservation/queries';
 import { useState } from 'react';
-import { HOUR_LABELS, TIMELINE_START, TOTAL_MINUTES } from './ReservationTimeline.constants';
 
-function timeToMinutes(time: string): number {
-  const [h, m] = time.split(':').map(Number);
-  return (h - TIMELINE_START) * 60 + m;
-}
+import { TimelineGrid } from 'shared/components/TimelineGrid';
+import * as styles from './ReservationTimeline.styles';
 
 interface ReservationTimelineProps {
   date: string;
 }
-export function ReservationTimeline({ date }: ReservationTimelineProps) {
-  const [activeReservation, setActiveReservation] = useState<string | null>(null);
-  const { data: rooms = [] } = useQuery(getRoomsQueryOptions());
-  const { data: reservations = [] } = useQuery({
-    ...getReservationsQueryOptions(date),
-    enabled: !!date,
-  });
-  return (
-    <div
-      css={css`
-        background: ${colors.grey50};
-        border-radius: 14px;
-        padding: 16px;
-      `}
-    >
-      {/* 시간 헤더 */}
-      <div
-        css={css`
-          display: flex;
-          align-items: flex-end;
-          margin-bottom: 8px;
-        `}
-      >
-        <div
-          css={css`
-            width: 80px;
-            flex-shrink: 0;
-            padding-right: 8px;
-          `}
-        />
-        <div
-          css={css`
-            flex: 1;
-            position: relative;
-            height: 18px;
-          `}
-        >
-          {HOUR_LABELS.map(t => {
-            const left = (timeToMinutes(t) / TOTAL_MINUTES) * 100;
-            return (
-              <Text
-                key={t}
-                typography="t7"
-                fontWeight="regular"
-                color={colors.grey400}
-                css={css`
-                  position: absolute;
-                  left: ${left}%;
-                  transform: translateX(-50%);
-                  font-size: 10px;
-                  letter-spacing: -0.3px;
-                `}
-              >
-                {t.slice(0, 2)}
-              </Text>
-            );
-          })}
-        </div>
-      </div>
 
-      {/* 회의실별 타임라인 */}
-      {rooms.map((room: { id: string; name: string }, index: number) => {
-        const roomReservations = reservations.filter((r: { roomId: string }) => r.roomId === room.id);
+export function ReservationTimeline({ date }: ReservationTimelineProps) {
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [{ data: rooms = [] }, { data: reservations = [] }] = useQueries({
+    queries: [
+      getRoomsQueryOptions(),
+      {
+        ...getReservationsQueryOptions(date),
+        enabled: !!date,
+      },
+    ],
+  });
+
+  return (
+    <TimelineGrid start={RESERVATION_TIMELINE_START} end={RESERVATION_TIMELINE_END}>
+      <TimelineGrid.Header />
+      {rooms.map((room, index) => {
+        const roomReservations = reservations.filter(reservation => reservation.roomId === room.id);
         return (
-          <div
-            key={room.id}
-            css={css`
-              display: flex;
-              align-items: center;
-              height: 32px;
-              ${index > 0 ? 'margin-top: 4px;' : ''}
-            `}
-          >
-            <div
-              css={css`
-                width: 80px;
-                flex-shrink: 0;
-                padding-right: 8px;
-              `}
-            >
-              <Text
-                typography="t7"
-                fontWeight="medium"
-                color={colors.grey700}
-                ellipsisAfterLines={1}
-                css={css`
-                  font-size: 12px;
-                `}
-              >
-                {room.name}
-              </Text>
-            </div>
-            <div
-              css={css`
-                flex: 1;
-                height: 24px;
-                background: ${colors.white};
-                border-radius: 6px;
-                position: relative;
-                overflow: visible;
-              `}
-            >
-              {roomReservations.map(
-                (res: { id: string; start: string; end: string; attendees: number; equipment: string[] }) => {
-                  const left = (timeToMinutes(res.start) / TOTAL_MINUTES) * 100;
-                  const width = ((timeToMinutes(res.end) - timeToMinutes(res.start)) / TOTAL_MINUTES) * 100;
-                  const isActive = activeReservation === res.id;
-                  return (
-                    <div
-                      key={res.id}
-                      css={css`
-                        position: absolute;
-                        left: ${left}%;
-                        width: ${width}%;
-                        height: 100%;
-                      `}
-                    >
-                      <div
-                        role="button"
-                        aria-label={`${room.name} ${res.start}-${res.end} 예약 상세`}
-                        onClick={() => setActiveReservation(isActive ? null : res.id)}
-                        css={css`
-                          width: 100%;
-                          height: 100%;
-                          background: ${colors.blue400};
-                          border-radius: 4px;
-                          opacity: ${isActive ? 1 : 0.75};
-                          cursor: pointer;
-                          transition: opacity 0.15s;
-                          &:hover {
-                            opacity: 1;
-                          }
-                        `}
-                      />
-                      {isActive && (
-                        <div
-                          role="tooltip"
-                          css={css`
-                            position: absolute;
-                            top: 100%;
-                            left: 50%;
-                            transform: translateX(-50%);
-                            margin-top: 6px;
-                            background: ${colors.grey900};
-                            color: ${colors.white};
-                            padding: 8px 12px;
-                            border-radius: 8px;
-                            font-size: 12px;
-                            white-space: nowrap;
-                            z-index: 10;
-                            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-                            line-height: 1.6;
-                          `}
-                        >
-                          <div>
-                            {res.start} ~ {res.end}
-                          </div>
-                          <div>{res.attendees}명</div>
-                          {res.equipment.length > 0 && (
-                            <div>{res.equipment.map((e: string) => EQUIPMENT_LABELS[e]).join(', ')}</div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  );
-                }
-              )}
-            </div>
-          </div>
+          <TimelineGrid.Row key={room.id} label={room.name} isFirst={index === 0}>
+            {roomReservations.map(reservation => {
+              const isActive = activeId === reservation.id;
+
+              return (
+                <TimelineGrid.Block
+                  key={reservation.id}
+                  start={reservation.start}
+                  end={reservation.end}
+                  ariaLabel={`${room.name} ${reservation.start}-${reservation.end} 예약 상세`}
+                  active={isActive}
+                  onClick={() => setActiveId(isActive ? null : reservation.id)}
+                >
+                  {isActive && <ReservationTooltip reservation={reservation} />}
+                </TimelineGrid.Block>
+              );
+            })}
+          </TimelineGrid.Row>
         );
       })}
+    </TimelineGrid>
+  );
+}
+
+function ReservationTooltip({ reservation }: { reservation: Reservation }) {
+  return (
+    <div role="tooltip" css={styles.tooltip}>
+      <div>
+        {reservation.start} ~ {reservation.end}
+      </div>
+      <div>{reservation.attendees}명</div>
+      {reservation.equipment.length > 0 && (
+        <div>{reservation.equipment.map((e: string) => EQUIPMENT_LABELS[e]).join(', ')}</div>
+      )}
     </div>
   );
 }

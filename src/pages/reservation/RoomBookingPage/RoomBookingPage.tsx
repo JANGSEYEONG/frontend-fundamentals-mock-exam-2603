@@ -15,10 +15,11 @@ import { MessageBanner } from 'shared/components/MessageBanner';
 import { PageLayout } from 'shared/components/PageLayout';
 import * as pageStyles from 'shared/components/PageLayout/PageLayout.styles';
 import { Section } from 'shared/components/Section';
-import { ALL_EQUIPMENT, EQUIPMENT_LABELS, TIME_SLOTS } from '../models';
+import { ALL_EQUIPMENT, EQUIPMENT_LABELS, RESERVATION_TIMELINE_END, RESERVATION_TIMELINE_START } from '../models';
 import { getMyReservationsQueryOptions, getReservationsQueryOptions, getRoomsQueryOptions } from '../queries';
 import { RoomList } from './components/RoomList';
 import * as styles from './RoomBookingPage.styles';
+import { range } from 'es-toolkit';
 
 export function RoomBookingPage() {
   const navigate = useNavigate();
@@ -203,7 +204,7 @@ export function RoomBookingPage() {
                 aria-label="시작 시간"
               >
                 <option value="">선택</option>
-                {TIME_SLOTS.slice(0, -1).map(t => (
+                {RESERVATION_TIME_SLOTS.slice(0, -1).map(t => (
                   <option key={t} value={t}>
                     {t}
                   </option>
@@ -225,7 +226,7 @@ export function RoomBookingPage() {
                 aria-label="종료 시간"
               >
                 <option value="">선택</option>
-                {TIME_SLOTS.slice(1).map(t => (
+                {RESERVATION_TIME_SLOTS.slice(1).map(t => (
                   <option key={t} value={t}>
                     {t}
                   </option>
@@ -360,3 +361,7 @@ export function RoomBookingPage() {
     </div>
   );
 }
+
+const RESERVATION_TIME_SLOTS = range(RESERVATION_TIMELINE_START, RESERVATION_TIMELINE_END)
+  .flatMap(h => [`${String(h).padStart(2, '0')}:00`, `${String(h).padStart(2, '0')}:30`])
+  .concat(`${String(RESERVATION_TIMELINE_END).padStart(2, '0')}:00`);
