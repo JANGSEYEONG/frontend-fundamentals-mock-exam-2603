@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Button, ListRow, Text } from '_tosslib/components';
 import { colors } from '_tosslib/constants/colors';
 import { getMyReservations, getRooms } from 'pages/remotes';
-import { EQUIPMENT_LABELS } from 'pages/ReservationStatusPage/ReservationStatusPage.constatns';
+import { EQUIPMENT_LABELS } from 'pages/reservation/constants';
 
 interface ReservationListProps {
   onCancel: (id: string) => void;

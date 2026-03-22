@@ -11,13 +11,7 @@ import * as pageStyles from 'shared/components/PageLayout/PageLayout.styles';
 import { Section } from 'shared/components/Section';
 import { ReservationList } from './components/ReservationList';
 import { ReservationTimeline } from './components/ReservationTimeline';
-
-function formatDate(date: Date): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const d = String(date.getDate()).padStart(2, '0');
-  return `${y}-${m}-${d}`;
-}
+import { formatDate } from '../constants';
 
 export function ReservationStatusPage() {
   const navigate = useNavigate();
