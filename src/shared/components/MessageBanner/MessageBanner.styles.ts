@@ -9,7 +9,3 @@ export const banner = (type: 'success' | 'error') => css`
   align-items: center;
   gap: 8px;
 `;
-
-export const text = (type: 'success' | 'error') => css`
-  color: ${type === 'success' ? colors.blue600 : colors.red500};
-`;
