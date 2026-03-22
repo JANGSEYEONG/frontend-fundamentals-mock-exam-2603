@@ -9,7 +9,7 @@ import { MessageBanner } from 'shared/components/MessageBanner';
 import { PageLayout } from 'shared/components/PageLayout';
 import * as pageStyles from 'shared/components/PageLayout/PageLayout.styles';
 import { Section } from 'shared/components/Section';
-import { formatDate } from '../constants';
+import { formatDate } from '../models';
 import { MyReservationList } from './components/MyReservationList';
 import { ReservationTimeline } from './components/ReservationTimeline';
 

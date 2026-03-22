@@ -26,17 +26,19 @@
     "baseUrl": "src",
     "paths": {
       "_tosslib/*": ["_tosslib/*"],
-      "pages/*": ["pages/*"],
-      "containers/*": ["containers/*"],
       "components/*": ["components/*"],
-      "sections/*": ["sections/*"],
       "constants/*": ["constants/*"],
-      "models/*": ["models/*"],
-      "remotes/*": ["remotes/*"],
-      "styles/*": ["styles/*"],
-      "utils/*": ["utils/*"],
+      "containers/*": ["containers/*"],
       "hooks/*": ["hooks/*"],
-      "stores/*": ["stores/*"]
+      "models/*": ["models/*"],
+      "pages/*": ["pages/*"],
+      "remotes/*": ["remotes/*"],
+      "sections/*": ["sections/*"],
+      "services/*": ["services/*"],
+      "shared/*": ["shared/*"],
+      "stores/*": ["stores/*"],
+      "styles/*": ["styles/*"],
+      "utils/*": ["utils/*"]
     }
   },
   "include": ["src"],

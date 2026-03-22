@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Text } from '_tosslib/components';
 import { colors } from '_tosslib/constants/colors';
 import { getReservations, getRooms } from 'pages/remotes';
-import { EQUIPMENT_LABELS, HOUR_LABELS, TIMELINE_START, TOTAL_MINUTES } from 'pages/reservation/constants';
+import { EQUIPMENT_LABELS, HOUR_LABELS, TIMELINE_START, TOTAL_MINUTES } from 'pages/reservation/models';
 import { useState } from 'react';
 
 function timeToMinutes(time: string): number {

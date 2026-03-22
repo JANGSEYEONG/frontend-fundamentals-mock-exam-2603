@@ -14,7 +14,7 @@ import { MessageBanner } from 'shared/components/MessageBanner';
 import { PageLayout } from 'shared/components/PageLayout';
 import * as pageStyles from 'shared/components/PageLayout/PageLayout.styles';
 import { Section } from 'shared/components/Section';
-import { ALL_EQUIPMENT, EQUIPMENT_LABELS, formatDate, TIME_SLOTS } from '../constants';
+import { ALL_EQUIPMENT, EQUIPMENT_LABELS, formatDate, TIME_SLOTS } from '../models';
 import { RoomList } from './components/RoomList';
 import * as styles from './RoomBookingPage.styles';
 

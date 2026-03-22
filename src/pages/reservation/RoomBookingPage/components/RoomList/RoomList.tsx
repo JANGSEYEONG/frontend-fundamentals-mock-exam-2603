@@ -1,7 +1,7 @@
 import { ListRow, Text } from '_tosslib/components';
 import { colors } from '_tosslib/constants/colors';
 
-import { EQUIPMENT_LABELS } from '../../../constants';
+import { EQUIPMENT_LABELS } from '../../../models';
 import * as styles from './RoomList.styles';
 interface Room {
   id: string;
