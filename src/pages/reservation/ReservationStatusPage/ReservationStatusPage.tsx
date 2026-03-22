@@ -10,7 +10,7 @@ import { MessageBanner } from 'shared/components/MessageBanner';
 import { PageLayout } from 'shared/components/PageLayout';
 import * as pageStyles from 'shared/components/PageLayout/PageLayout.styles';
 import { Section } from 'shared/components/Section';
-import { myReservationsQueryOptions } from '../queries';
+import { getMyReservationsQueryOptions } from '../queries';
 import { MyReservationList } from './components/MyReservationList';
 import { ReservationTimeline } from './components/ReservationTimeline';
 
@@ -30,7 +30,7 @@ export function ReservationStatusPage() {
   const cancelMutation = useMutation((id: string) => cancelReservation(id), {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['reservations'] });
-      queryClient.invalidateQueries({ queryKey: ['myReservations'] });
+      queryClient.invalidateQueries({ queryKey: getMyReservationsQueryOptions().queryKey });
     },
   });
 
@@ -40,7 +40,7 @@ export function ReservationStatusPage() {
     }
   }, [locationState]);
 
-  const { data: myReservationList = [] } = useQuery(myReservationsQueryOptions());
+  const { data: myReservationList = [] } = useQuery(getMyReservationsQueryOptions());
 
   return (
     <PageLayout title="회의실 예약">

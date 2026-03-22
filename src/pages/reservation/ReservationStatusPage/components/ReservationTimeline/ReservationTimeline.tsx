@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Text } from '_tosslib/components';
 import { colors } from '_tosslib/constants/colors';
 import { EQUIPMENT_LABELS } from 'pages/reservation/models';
-import { reservationsQueryOptions, roomsQueryOptions } from 'pages/reservation/queries';
+import { getReservationsQueryOptions, getRoomsQueryOptions } from 'pages/reservation/queries';
 import { useState } from 'react';
 import { HOUR_LABELS, TIMELINE_START, TOTAL_MINUTES } from './ReservationTimeline.constants';
 
@@ -17,9 +17,9 @@ interface ReservationTimelineProps {
 }
 export function ReservationTimeline({ date }: ReservationTimelineProps) {
   const [activeReservation, setActiveReservation] = useState<string | null>(null);
-  const { data: rooms = [] } = useQuery(roomsQueryOptions());
+  const { data: rooms = [] } = useQuery(getRoomsQueryOptions());
   const { data: reservations = [] } = useQuery({
-    ...reservationsQueryOptions(date),
+    ...getReservationsQueryOptions(date),
     enabled: !!date,
   });
   return (

@@ -1,19 +1,19 @@
 import { queryOptions } from '@tanstack/react-query';
 import { getMyReservations, getReservations, getRooms } from 'pages/remotes';
 
-export const roomsQueryOptions = () =>
+export const getRoomsQueryOptions = () =>
   queryOptions({
     queryKey: ['rooms'],
     queryFn: () => getRooms(),
   });
 
-export const reservationsQueryOptions = (date: string) =>
+export const getReservationsQueryOptions = (date: string) =>
   queryOptions({
     queryKey: ['reservations', date],
     queryFn: () => getReservations(date),
   });
 
-export const myReservationsQueryOptions = () =>
+export const getMyReservationsQueryOptions = () =>
   queryOptions({
     queryKey: ['myReservations'],
     queryFn: () => getMyReservations(),

@@ -16,7 +16,7 @@ import { PageLayout } from 'shared/components/PageLayout';
 import * as pageStyles from 'shared/components/PageLayout/PageLayout.styles';
 import { Section } from 'shared/components/Section';
 import { ALL_EQUIPMENT, EQUIPMENT_LABELS, TIME_SLOTS } from '../models';
-import { reservationsQueryOptions, roomsQueryOptions } from '../queries';
+import { getMyReservationsQueryOptions, getReservationsQueryOptions, getRoomsQueryOptions } from '../queries';
 import { RoomList } from './components/RoomList';
 import * as styles from './RoomBookingPage.styles';
 
@@ -50,9 +50,9 @@ export function RoomBookingPage() {
     setSearchParams(params, { replace: true });
   }, [date, startTime, endTime, attendees, equipment, preferredFloor, setSearchParams]);
 
-  const { data: rooms = [] } = useQuery(roomsQueryOptions());
+  const { data: rooms = [] } = useQuery(getRoomsQueryOptions());
   const { data: reservations = [] } = useQuery({
-    ...reservationsQueryOptions(date),
+    ...getReservationsQueryOptions(date),
     enabled: !!date,
   });
 
@@ -61,8 +61,8 @@ export function RoomBookingPage() {
       createReservation(data),
     {
       onSuccess: (_data, variables) => {
-        queryClient.invalidateQueries(['reservations', variables.date]);
-        queryClient.invalidateQueries(['myReservations']);
+        queryClient.invalidateQueries({ queryKey: getReservationsQueryOptions(variables.date).queryKey });
+        queryClient.invalidateQueries({ queryKey: getMyReservationsQueryOptions().queryKey });
       },
     }
   );

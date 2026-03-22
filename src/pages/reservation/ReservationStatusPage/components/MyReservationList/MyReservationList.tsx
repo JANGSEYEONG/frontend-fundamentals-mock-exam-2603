@@ -3,15 +3,15 @@ import { useQuery } from '@tanstack/react-query';
 import { Button, ListRow, Text } from '_tosslib/components';
 import { colors } from '_tosslib/constants/colors';
 import { EQUIPMENT_LABELS } from 'pages/reservation/models';
-import { myReservationsQueryOptions, roomsQueryOptions } from 'pages/reservation/queries';
+import { getMyReservationsQueryOptions, getRoomsQueryOptions } from 'pages/reservation/queries';
 
 interface MyReservationListProps {
   onCancel: (id: string) => void;
 }
 export function MyReservationList({ onCancel }: MyReservationListProps) {
-  const { data: rooms = [] } = useQuery(roomsQueryOptions());
+  const { data: rooms = [] } = useQuery(getRoomsQueryOptions());
 
-  const { data: myReservationList = [] } = useQuery(myReservationsQueryOptions());
+  const { data: myReservationList = [] } = useQuery(getMyReservationsQueryOptions());
   const getRoomName = (roomId: string) =>
     rooms.find((r: { id: string; name: string }) => r.id === roomId)?.name ?? roomId;
 
