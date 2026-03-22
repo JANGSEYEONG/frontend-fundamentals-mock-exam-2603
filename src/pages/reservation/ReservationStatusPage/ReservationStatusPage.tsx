@@ -17,31 +17,8 @@ import { ReservationTimeline } from './components/ReservationTimeline';
 
 export function ReservationStatusPage() {
   const navigate = useNavigate();
-  const location = useLocation();
 
   const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'));
-
-  const locationState = location.state as { message?: string } | null;
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(
-    locationState?.message ? { type: 'success', text: locationState.message } : null
-  );
-
-  const queryClient = useQueryClient();
-
-  const cancelMutation = useMutation((id: string) => cancelReservation(id), {
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['reservations'] });
-      queryClient.invalidateQueries({ queryKey: getMyReservationsQueryOptions().queryKey });
-    },
-  });
-
-  useEffect(() => {
-    if (locationState?.message) {
-      window.history.replaceState({}, '');
-    }
-  }, [locationState]);
-
-  const { data: myReservationList = [] } = useQuery(getMyReservationsQueryOptions());
 
   return (
     <PageLayout title="회의실 예약">
@@ -71,15 +48,58 @@ export function ReservationStatusPage() {
       <Border size={8} />
       <Spacing size={24} />
 
-      {/* 메시지 배너 */}
+      <MyReservationSection />
+
+      <Spacing size={24} />
+      <Border size={8} />
+      <Spacing size={24} />
+
+      {/* 예약하기 버튼 */}
+      <div css={pageStyles.inset}>
+        <Button display="full" onClick={() => navigate('/booking')}>
+          예약하기
+        </Button>
+      </div>
+    </PageLayout>
+  );
+}
+
+function MyReservationSection() {
+  const { data: myReservationList = [] } = useQuery(getMyReservationsQueryOptions());
+
+  const location = useLocation();
+  const locationState = location.state as { message?: string } | null;
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(
+    locationState?.message ? { type: 'success', text: locationState.message } : null
+  );
+
+  const queryClient = useQueryClient();
+  const cancelMutation = useMutation((id: string) => cancelReservation(id), {
+    onSuccess: () => {
+      setMessage({ type: 'success', text: '예약이 취소되었습니다.' });
+
+      queryClient.invalidateQueries({ queryKey: ['reservations'] });
+      queryClient.invalidateQueries({ queryKey: getMyReservationsQueryOptions().queryKey });
+    },
+    onError: () => {
+      setMessage({ type: 'error', text: '취소에 실패했습니다.' });
+    },
+  });
+
+  useEffect(() => {
+    if (locationState?.message) {
+      window.history.replaceState({}, '');
+    }
+  }, [locationState]);
+
+  return (
+    <>
       {message && (
         <div css={pageStyles.inset}>
           <MessageBanner message={message} />
           <Spacing size={12} />
         </div>
       )}
-
-      {/* 내 예약 목록 */}
       <Section
         label="내 예약"
         right={
@@ -97,15 +117,11 @@ export function ReservationStatusPage() {
                 type="danger"
                 style="weak"
                 size="small"
+                disabled={cancelMutation.isPending}
                 onClick={async e => {
                   e.stopPropagation();
                   if (window.confirm('정말 취소하시겠습니까?')) {
-                    try {
-                      await cancelMutation.mutateAsync(reservation.id);
-                      setMessage({ type: 'success', text: '예약이 취소되었습니다.' });
-                    } catch {
-                      setMessage({ type: 'error', text: '취소에 실패했습니다.' });
-                    }
+                    cancelMutation.mutate(reservation.id);
                   }
                 }}
               >
@@ -115,17 +131,6 @@ export function ReservationStatusPage() {
           }}
         />
       </Section>
-
-      <Spacing size={24} />
-      <Border size={8} />
-      <Spacing size={24} />
-
-      {/* 예약하기 버튼 */}
-      <div css={pageStyles.inset}>
-        <Button display="full" onClick={() => navigate('/booking')}>
-          예약하기
-        </Button>
-      </div>
-    </PageLayout>
+    </>
   );
 }
