@@ -9,9 +9,9 @@ import { MessageBanner } from 'shared/components/MessageBanner';
 import { PageLayout } from 'shared/components/PageLayout';
 import * as pageStyles from 'shared/components/PageLayout/PageLayout.styles';
 import { Section } from 'shared/components/Section';
-import { ReservationList } from './components/ReservationList';
-import { ReservationTimeline } from './components/ReservationTimeline';
 import { formatDate } from '../constants';
+import { MyReservationList } from './components/MyReservationList';
+import { ReservationTimeline } from './components/ReservationTimeline';
 
 export function ReservationStatusPage() {
   const navigate = useNavigate();
@@ -87,7 +87,7 @@ export function ReservationStatusPage() {
           )
         }
       >
-        <ReservationList
+        <MyReservationList
           onCancel={async id => {
             try {
               await cancelMutation.mutateAsync(id);

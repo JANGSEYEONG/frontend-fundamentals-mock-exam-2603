@@ -16,8 +16,10 @@ interface ReservationTimelineProps {
 }
 export function ReservationTimeline({ date }: ReservationTimelineProps) {
   const [activeReservation, setActiveReservation] = useState<string | null>(null);
-  const { data: rooms = [] } = useQuery(['rooms'], getRooms);
-  const { data: reservations = [] } = useQuery(['reservations', date], () => getReservations(date), {
+  const { data: rooms = [] } = useQuery({ queryKey: ['rooms'], queryFn: getRooms });
+  const { data: reservations = [] } = useQuery({
+    queryKey: ['reservations', date],
+    queryFn: () => getReservations(date),
     enabled: !!date,
   });
   return (

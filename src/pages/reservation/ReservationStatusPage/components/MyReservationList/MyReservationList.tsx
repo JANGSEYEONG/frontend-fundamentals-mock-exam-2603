@@ -5,13 +5,13 @@ import { colors } from '_tosslib/constants/colors';
 import { getMyReservations, getRooms } from 'pages/remotes';
 import { EQUIPMENT_LABELS } from 'pages/reservation/constants';
 
-interface ReservationListProps {
+interface MyReservationListProps {
   onCancel: (id: string) => void;
 }
-export function ReservationList({ onCancel }: ReservationListProps) {
+export function MyReservationList({ onCancel }: MyReservationListProps) {
   const { data: rooms = [] } = useQuery({ queryKey: ['rooms'], queryFn: getRooms });
 
-  const { data: myReservationList = [] } = useQuery(['myReservations'], getMyReservations);
+  const { data: myReservationList = [] } = useQuery({ queryKey: ['myReservations'], queryFn: getMyReservations });
   const getRoomName = (roomId: string) =>
     rooms.find((r: { id: string; name: string }) => r.id === roomId)?.name ?? roomId;
 
