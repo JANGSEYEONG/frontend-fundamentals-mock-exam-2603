@@ -10,6 +10,7 @@ import { MessageBanner } from 'shared/components/MessageBanner';
 import { PageLayout } from 'shared/components/PageLayout';
 import * as pageStyles from 'shared/components/PageLayout/PageLayout.styles';
 import { Section } from 'shared/components/Section';
+import { Reservation } from '../models';
 import { getMyReservationsQueryOptions } from '../queries';
 import { MyReservationList } from './components/MyReservationList';
 import { ReservationTimeline } from './components/ReservationTimeline';
@@ -90,13 +91,27 @@ export function ReservationStatusPage() {
         }
       >
         <MyReservationList
-          onCancel={async id => {
-            try {
-              await cancelMutation.mutateAsync(id);
-              setMessage({ type: 'success', text: '예약이 취소되었습니다.' });
-            } catch {
-              setMessage({ type: 'error', text: '취소에 실패했습니다.' });
-            }
+          renderRight={(reservation: Reservation) => {
+            return (
+              <Button
+                type="danger"
+                style="weak"
+                size="small"
+                onClick={async e => {
+                  e.stopPropagation();
+                  if (window.confirm('정말 취소하시겠습니까?')) {
+                    try {
+                      await cancelMutation.mutateAsync(reservation.id);
+                      setMessage({ type: 'success', text: '예약이 취소되었습니다.' });
+                    } catch {
+                      setMessage({ type: 'error', text: '취소에 실패했습니다.' });
+                    }
+                  }
+                }}
+              >
+                취소
+              </Button>
+            );
           }}
         />
       </Section>

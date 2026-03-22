@@ -3,6 +3,7 @@ import { colors } from '_tosslib/constants/colors';
 
 import { EQUIPMENT_LABELS } from '../../../models';
 import * as styles from './RoomList.styles';
+import { EmptyState } from 'shared/components/EmptyState';
 interface Room {
   id: string;
   name: string;
@@ -17,14 +18,7 @@ interface RoomListProps {
   onSelect: (roomId: string) => void;
 }
 export function RoomList({ rooms, selectedRoomId, onSelect }: RoomListProps) {
-  if (rooms.length === 0)
-    return (
-      <div css={styles.emptyState}>
-        <Text typography="t6" color={colors.grey500}>
-          조건에 맞는 회의실이 없습니다.
-        </Text>
-      </div>
-    );
+  if (rooms.length === 0) return <EmptyState message="조건에 맞는 회의실이 없습니다." />;
 
   return (
     <div css={styles.list}>
