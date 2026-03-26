@@ -12,7 +12,7 @@ import { MessageBanner } from 'shared/components/MessageBanner';
 import { PageLayout } from 'shared/components/PageLayout';
 import * as pageStyles from 'shared/components/PageLayout/PageLayout.styles';
 import { Section } from 'shared/components/Section';
-import { createLocationMessageState } from 'shared/hooks/useLocationMessage';
+import { createLocationStateMessage } from 'shared/hooks/useLocationStateMessage';
 import { Reservation, Room } from '../models';
 import { getMyReservationsQueryOptions, getReservationsQueryOptions, getRoomsQueryOptions } from '../queries';
 import { BookingFilterForm } from './components/BookingFilterForm';
@@ -39,9 +39,7 @@ export function RoomBookingPage() {
   const createMutation = useMutation((data: Omit<Reservation, 'id'>) => createReservation(data), {
     onSuccess: (data, variables) => {
       if (data.ok) {
-        navigate('/', {
-          state: createLocationMessageState({ message: '예약이 완료되었습니다!' }),
-        });
+        navigate('/', { state: createLocationStateMessage({ text: '예약이 완료되었습니다!' }) });
         return;
       }
 

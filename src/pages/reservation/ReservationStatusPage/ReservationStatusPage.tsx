@@ -11,7 +11,7 @@ import { Message } from 'shared/components/MessageBanner/MessageBanner';
 import { PageLayout } from 'shared/components/PageLayout';
 import * as pageStyles from 'shared/components/PageLayout/PageLayout.styles';
 import { Section } from 'shared/components/Section';
-import { useLocationMessage } from 'shared/hooks/useLocationMessage';
+import { useLocationStateMessage } from 'shared/hooks/useLocationStateMessage';
 import { Reservation } from '../models';
 import { getMyReservationsQueryOptions } from '../queries';
 import { MyReservationList } from './components/MyReservationList';
@@ -65,7 +65,7 @@ export function ReservationStatusPage() {
 function MyReservationSection() {
   const { data: myReservationList = [] } = useQuery(getMyReservationsQueryOptions());
 
-  const { message: locationMessage } = useLocationMessage();
+  const locationMessage = useLocationStateMessage();
   const [message, setMessage] = useState<Message | null>(null);
 
   const queryClient = useQueryClient();
@@ -95,7 +95,7 @@ function MyReservationSection() {
         if (locationMessage) {
           return (
             <div css={pageStyles.inset}>
-              <MessageBanner message={{ type: 'success', text: locationMessage }} />
+              <MessageBanner message={{ type: 'success', text: locationMessage.text }} />
               <Spacing size={12} />
             </div>
           );
