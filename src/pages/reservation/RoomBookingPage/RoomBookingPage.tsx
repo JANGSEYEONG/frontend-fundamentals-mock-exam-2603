@@ -1,9 +1,7 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Border, Button, Spacing, Text } from '_tosslib/components';
-import { colors } from '_tosslib/constants/colors';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { Border, Button, Spacing } from '_tosslib/components';
 import axios from 'axios';
 import { format } from 'date-fns';
-import { isNil } from 'es-toolkit';
 import { createReservation } from 'pages/remotes';
 import qs from 'qs';
 import { useState } from 'react';
@@ -16,9 +14,9 @@ import { PageLayout } from 'shared/components/PageLayout';
 import * as pageStyles from 'shared/components/PageLayout/PageLayout.styles';
 import { Section } from 'shared/components/Section';
 import { createLocationStateMessage } from 'shared/hooks/useLocationStateMessage';
-import { Reservation, Room } from '../models';
-import { getMyReservationsQueryOptions, getReservationsQueryOptions, getRoomsQueryOptions } from '../queries';
-import { RoomList } from './components/RoomList';
+import { Reservation } from '../models';
+import { getMyReservationsQueryOptions, getReservationsQueryOptions } from '../queries';
+import { AvailableReservationSection } from './components/AvailableReservationSection';
 import { BookingFilter, bookingFilterSchema } from './RoomBookingPage.schema';
 import * as styles from './RoomBookingPage.styles';
 
@@ -35,12 +33,6 @@ export function RoomBookingPage() {
   const [filter, setFilter] = useState<BookingFilter>(() => parseFilterFromQs(searchParams.toString()));
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const { data: rooms = [] } = useQuery(getRoomsQueryOptions());
-  const { data: reservations = [] } = useQuery({
-    ...getReservationsQueryOptions(filter.date),
-    enabled: !!filter.date,
-  });
 
   const createMutation = useMutation((data: Omit<Reservation, 'id'>) => createReservation(data), {
     onSuccess: (data, variables) => {
@@ -87,8 +79,6 @@ export function RoomBookingPage() {
     }
   }
   const isFilterComplete = hasTimeInputs && !validationError;
-
-  const availableRooms = isFilterComplete ? getAvailableRooms(rooms, reservations, filter) : [];
 
   const handleBook = () => {
     if (!selectedRoomId) {
@@ -207,22 +197,13 @@ export function RoomBookingPage() {
 
         {isFilterComplete && (
           <>
-            <Section
-              label="예약 가능 회의실"
-              right={
-                <Text typography="t7" fontWeight="medium" color={colors.grey500}>
-                  {availableRooms.length}개
-                </Text>
-              }
-            >
-              <RoomList
-                rooms={availableRooms}
-                selectedRoomId={selectedRoomId}
-                onSelect={roomId => {
-                  setSelectedRoomId(roomId);
-                }}
-              />
-            </Section>
+            <AvailableReservationSection
+              filter={filter}
+              selectedRoomId={selectedRoomId}
+              onSelect={roomId => {
+                setSelectedRoomId(roomId);
+              }}
+            />
 
             <Spacing size={16} />
 
@@ -255,29 +236,3 @@ export function stringifyFilterToQs(filter: BookingFilter): string {
 
   return qs.stringify(params);
 }
-
-function getAvailableRooms(rooms: Room[], reservations: Reservation[], filter: BookingFilter): Room[] {
-  return rooms
-    .filter(hasCapacity(filter.attendees))
-    .filter(hasEquipment(filter.equipment))
-    .filter(matchesFloor(filter.floor))
-    .filter(isReservationAvailable(reservations, filter.date, filter.startTime, filter.endTime))
-    .sort((a, b) => a.floor - b.floor || a.name.localeCompare(b.name));
-}
-
-const hasCapacity = (min: number) => (room: Room) => room.capacity >= min;
-
-const hasEquipment = (required: string[]) => (room: Room) =>
-  required.every(equipment => room.equipment.includes(equipment));
-
-const matchesFloor = (floor: number | null) => (room: Room) => isNil(floor) || room.floor === floor;
-
-const isReservationAvailable =
-  (reservations: Reservation[], date: string, startTime: string, endTime: string) => (room: Room) =>
-    !reservations.some(
-      reservation =>
-        reservation.roomId === room.id &&
-        reservation.date === date &&
-        reservation.start < endTime &&
-        reservation.end > startTime
-    );
