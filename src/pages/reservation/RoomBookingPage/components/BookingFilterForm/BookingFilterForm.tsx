@@ -38,7 +38,7 @@ export function BookingFilterForm({ filter, onChange }: BookingFilterFormProps) 
 
       {/* 시간 */}
       <div css={styles.rowStyle}>
-        <FormField label="시작 시간" css={styles.flexOne}>
+        <FormField label="시작 시간">
           <TimeSelector
             aria-label="시작 시간"
             value={filter.startTime}
@@ -49,7 +49,7 @@ export function BookingFilterForm({ filter, onChange }: BookingFilterFormProps) 
           />
         </FormField>
 
-        <FormField label="종료 시간" css={styles.flexOne}>
+        <FormField label="종료 시간">
           <TimeSelector
             aria-label="종료 시간"
             value={filter.endTime}
@@ -65,7 +65,7 @@ export function BookingFilterForm({ filter, onChange }: BookingFilterFormProps) 
 
       {/* 참석 인원 + 선호 층 */}
       <div css={styles.rowStyle}>
-        <FormField label="참석 인원" css={styles.flexOne}>
+        <FormField label="참석 인원">
           <Input
             type="number"
             min={1}
@@ -75,7 +75,7 @@ export function BookingFilterForm({ filter, onChange }: BookingFilterFormProps) 
           />
         </FormField>
 
-        <FormField label="선호 층" css={styles.flexOne}>
+        <FormField label="선호 층">
           <Select
             value={filter.floor ?? ''}
             onChange={e => onChange({ floor: e.target.value === '' ? null : Number(e.target.value) })}
@@ -95,7 +95,7 @@ export function BookingFilterForm({ filter, onChange }: BookingFilterFormProps) 
 
       {/* 장비 */}
       <div>
-        <FormField label="필요 장비" css={styles.flexOne}>
+        <FormField label="필요 장비">
           <div css={styles.chipRowStyle}>
             {ALL_EQUIPMENT.map(eq => (
               <ChipToggle
