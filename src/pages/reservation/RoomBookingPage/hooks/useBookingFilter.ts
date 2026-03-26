@@ -1,7 +1,7 @@
 import { format } from 'date-fns';
 import { createParser, parseAsInteger, parseAsString, useQueryStates } from 'nuqs';
 import { useMemo } from 'react';
-import { BookingFilter } from './RoomBookingPage.schema';
+import { BookingFilter } from '../RoomBookingPage.schema';
 
 const parseAsCommaSeparatedArray = createParser({
   parse: (value: string) => value.split(',').filter(Boolean),

@@ -23,8 +23,8 @@ import { DateSelector } from 'shared/components/DateSelector';
 import { TimeSelector } from 'shared/components/TimeSelector';
 import { EquipmentSelector } from './components/EquipmentSelector';
 import { PreferredFloorSelector } from './components/PreferredFloorSelector';
-import { useBookingFilter } from './useBookingFilter';
-import { useSelectedRoomId } from './useSelectedRoomId';
+import { useBookingFilter } from './hooks/useBookingFilter';
+import { useSelectedRoomId } from './hooks/useSelectedRoomId';
 export function RoomBookingPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
