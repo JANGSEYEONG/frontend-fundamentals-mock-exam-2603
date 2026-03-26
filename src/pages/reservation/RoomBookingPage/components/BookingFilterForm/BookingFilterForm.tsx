@@ -15,6 +15,7 @@ import { range, uniq } from 'es-toolkit';
 import { getRoomsQueryOptions } from 'pages/reservation/queries';
 import { BookingFilter } from '../../RoomBookingPage.schema';
 import * as styles from './BookingFilterForm.styles';
+import { TimeSelector } from 'shared/components/TimeSelector';
 
 interface BookingFilterFormProps {
   filter: BookingFilter;
@@ -43,29 +44,25 @@ export function BookingFilterForm({ filter, onChange }: BookingFilterFormProps) 
       {/* 시간 */}
       <div css={styles.rowStyle}>
         <FormField label="시작 시간" css={styles.flexOne}>
-          <Select
-            value={filter.startTime}
-            onChange={e => onChange({ startTime: e.target.value })}
+          <TimeSelector
             aria-label="시작 시간"
-          >
-            <option value="">선택</option>
-            {RESERVATION_TIME_SLOTS.slice(0, -1).map(time => (
-              <option key={time} value={time}>
-                {time}
-              </option>
-            ))}
-          </Select>
+            value={filter.startTime}
+            onChange={value => onChange({ startTime: value })}
+            start="09:00"
+            end="19:30"
+            step={30}
+          />
         </FormField>
 
         <FormField label="종료 시간" css={styles.flexOne}>
-          <Select value={filter.endTime} onChange={e => onChange({ endTime: e.target.value })} aria-label="종료 시간">
-            <option value="">선택</option>
-            {RESERVATION_TIME_SLOTS.slice(1).map(time => (
-              <option key={time} value={time}>
-                {time}
-              </option>
-            ))}
-          </Select>
+          <TimeSelector
+            aria-label="종료 시간"
+            value={filter.endTime}
+            onChange={value => onChange({ endTime: value })}
+            start="09:30"
+            end="20:00"
+            step={30}
+          />
         </FormField>
       </div>
 
