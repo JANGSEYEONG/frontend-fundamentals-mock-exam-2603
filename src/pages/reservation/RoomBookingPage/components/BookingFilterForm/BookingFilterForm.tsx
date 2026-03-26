@@ -8,6 +8,7 @@ import { Input } from 'shared/components/Input';
 import { useQuery } from '@tanstack/react-query';
 import { uniq } from 'es-toolkit';
 import { getRoomsQueryOptions } from 'pages/reservation/queries';
+import { DateSelector } from 'shared/components/DateSelector';
 import { TimeSelector } from 'shared/components/TimeSelector';
 import { BookingFilter } from '../../RoomBookingPage.schema';
 import * as styles from './BookingFilterForm.styles';
@@ -25,11 +26,10 @@ export function BookingFilterForm({ filter, onChange }: BookingFilterFormProps) 
     <>
       {/* 날짜 */}
       <FormField label="날짜">
-        <Input
-          type="date"
+        <DateSelector
           value={filter.date}
+          onChange={value => onChange({ date: value })}
           min={format(new Date(), 'yyyy-MM-dd')}
-          onChange={e => onChange({ date: e.target.value })}
           aria-label="날짜"
         />
       </FormField>

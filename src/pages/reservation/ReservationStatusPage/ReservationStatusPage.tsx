@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 import { cancelReservation } from 'pages/remotes';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Input } from 'shared/components/Input';
+import { DateSelector } from 'shared/components/DateSelector';
 import { MessageBanner } from 'shared/components/MessageBanner';
 import { Message } from 'shared/components/MessageBanner/MessageBanner';
 import { PageLayout } from 'shared/components/PageLayout';
@@ -26,11 +26,10 @@ export function ReservationStatusPage() {
       <Spacing size={24} />
 
       <Section label="날짜 선택">
-        <Input
-          type="date"
+        <DateSelector
           value={date}
+          onChange={value => setDate(value)}
           min={format(new Date(), 'yyyy-MM-dd')}
-          onChange={e => setDate(e.target.value)}
           aria-label="날짜"
         />
       </Section>
