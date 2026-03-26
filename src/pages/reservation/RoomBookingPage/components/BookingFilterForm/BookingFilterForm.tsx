@@ -1,21 +1,16 @@
 import { Select, Spacing } from '_tosslib/components';
 import { format } from 'date-fns';
-import {
-  ALL_EQUIPMENT,
-  EQUIPMENT_LABELS,
-  RESERVATION_TIMELINE_END,
-  RESERVATION_TIMELINE_START,
-} from 'pages/reservation/models';
+import { ALL_EQUIPMENT, EQUIPMENT_LABELS } from 'pages/reservation/models';
 import { ChipToggle } from 'shared/components/ChipToggle';
 import { FormField } from 'shared/components/FormField';
 import { Input } from 'shared/components/Input';
 
 import { useQuery } from '@tanstack/react-query';
-import { range, uniq } from 'es-toolkit';
+import { uniq } from 'es-toolkit';
 import { getRoomsQueryOptions } from 'pages/reservation/queries';
+import { TimeSelector } from 'shared/components/TimeSelector';
 import { BookingFilter } from '../../RoomBookingPage.schema';
 import * as styles from './BookingFilterForm.styles';
-import { TimeSelector } from 'shared/components/TimeSelector';
 
 interface BookingFilterFormProps {
   filter: BookingFilter;
@@ -121,7 +116,3 @@ export function BookingFilterForm({ filter, onChange }: BookingFilterFormProps) 
     </>
   );
 }
-
-const RESERVATION_TIME_SLOTS = range(RESERVATION_TIMELINE_START, RESERVATION_TIMELINE_END)
-  .flatMap(h => [`${String(h).padStart(2, '0')}:00`, `${String(h).padStart(2, '0')}:30`])
-  .concat(`${String(RESERVATION_TIMELINE_END).padStart(2, '0')}:00`);

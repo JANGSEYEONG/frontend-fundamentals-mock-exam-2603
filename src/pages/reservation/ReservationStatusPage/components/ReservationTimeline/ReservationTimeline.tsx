@@ -1,10 +1,5 @@
 import { useQueries } from '@tanstack/react-query';
-import {
-  EQUIPMENT_LABELS,
-  Reservation,
-  RESERVATION_TIMELINE_END,
-  RESERVATION_TIMELINE_START,
-} from 'pages/reservation/models';
+import { EQUIPMENT_LABELS, Reservation } from 'pages/reservation/models';
 import { getReservationsQueryOptions, getRoomsQueryOptions } from 'pages/reservation/queries';
 import { useState } from 'react';
 
@@ -28,7 +23,7 @@ export function ReservationTimeline({ date }: ReservationTimelineProps) {
   });
 
   return (
-    <TimelineGrid start={RESERVATION_TIMELINE_START} end={RESERVATION_TIMELINE_END}>
+    <TimelineGrid start={9} end={20}>
       <TimelineGrid.Header />
       {rooms.map((room, index) => {
         const roomReservations = reservations.filter(reservation => reservation.roomId === room.id);

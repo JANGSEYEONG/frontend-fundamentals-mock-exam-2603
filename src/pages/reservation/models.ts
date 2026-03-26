@@ -1,6 +1,3 @@
-export const RESERVATION_TIMELINE_START = 9;
-export const RESERVATION_TIMELINE_END = 20;
-
 export const EQUIPMENT_LABELS: Record<string, string> = {
   tv: 'TV',
   whiteboard: '화이트보드',
