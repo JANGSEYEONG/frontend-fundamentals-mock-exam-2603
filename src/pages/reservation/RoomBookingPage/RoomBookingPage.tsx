@@ -3,9 +3,8 @@ import { Border, Button, Spacing } from '_tosslib/components';
 import axios from 'axios';
 import { format } from 'date-fns';
 import { createReservation } from 'pages/remotes';
-import qs from 'qs';
 import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ErrorText } from 'shared/components/ErrorText';
 import { FormField } from 'shared/components/FormField';
 import { Input } from 'shared/components/Input';
@@ -17,20 +16,19 @@ import { createLocationStateMessage } from 'shared/hooks/useLocationStateMessage
 import { Reservation } from '../models';
 import { getMyReservationsQueryOptions, getReservationsQueryOptions } from '../queries';
 import { AvailableReservationSection } from './components/AvailableReservationSection';
-import { BookingFilter, bookingFilterSchema } from './RoomBookingPage.schema';
+import { BookingFilter } from './RoomBookingPage.schema';
 import * as styles from './RoomBookingPage.styles';
 
 import { DateSelector } from 'shared/components/DateSelector';
 import { TimeSelector } from 'shared/components/TimeSelector';
 import { EquipmentSelector } from './components/EquipmentSelector';
 import { PreferredFloorSelector } from './components/PreferredFloorSelector';
+import { useBookingFilter } from './useBookingFilter';
 export function RoomBookingPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const [searchParams, setSearchParams] = useSearchParams();
-
-  const [filter, setFilter] = useState<BookingFilter>(() => parseFilterFromQs(searchParams.toString()));
+  const [filter, setFilter] = useBookingFilter();
   const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -59,11 +57,7 @@ export function RoomBookingPage() {
   });
 
   const handleFilterChange = (patch: Partial<BookingFilter>) => {
-    setFilter(prev => {
-      const next = { ...prev, ...patch };
-      setSearchParams(stringifyFilterToQs(next), { replace: true });
-      return next;
-    });
+    setFilter(patch);
     setSelectedRoomId(null);
     setErrorMessage(null);
   };
@@ -217,22 +211,4 @@ export function RoomBookingPage() {
       </PageLayout>
     </div>
   );
-}
-
-export function parseFilterFromQs(search: string): BookingFilter {
-  const raw = qs.parse(search, { ignoreQueryPrefix: true });
-  return bookingFilterSchema.parse(raw);
-}
-
-export function stringifyFilterToQs(filter: BookingFilter): string {
-  const params: Record<string, string> = {};
-
-  if (filter.date) params.date = filter.date;
-  if (filter.startTime) params.startTime = filter.startTime;
-  if (filter.endTime) params.endTime = filter.endTime;
-  if (filter.attendees > 1) params.attendees = String(filter.attendees);
-  if (filter.equipment.length > 0) params.equipment = filter.equipment.join(',');
-  if (filter.floor != null) params.floor = String(filter.floor);
-
-  return qs.stringify(params);
 }

@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { describe, test, expect, afterEach, vi } from 'vitest';
 import App from './App';
 import * as remotes from 'pages/remotes';
+import { NuqsAdapter } from 'nuqs/adapters/react-router/v6';
 
 describe('예약 현황 페이지', () => {
   afterEach(() => {
@@ -13,7 +14,9 @@ describe('예약 현황 페이지', () => {
   function renderApp(route = '/') {
     return render(
       <MemoryRouter initialEntries={[route]}>
-        <App />
+        <NuqsAdapter>
+          <App />
+        </NuqsAdapter>
       </MemoryRouter>
     );
   }
@@ -125,12 +128,16 @@ describe('예약 현황 페이지', () => {
 describe('예약하기 페이지', () => {
   afterEach(() => {
     vi.restoreAllMocks();
+    // Clear URL state between tests
+    window.history.replaceState({}, '', '/');
   });
 
   function renderApp(route = '/booking') {
     return render(
       <MemoryRouter initialEntries={[route]}>
-        <App />
+        <NuqsAdapter>
+          <App />
+        </NuqsAdapter>
       </MemoryRouter>
     );
   }
@@ -212,7 +219,10 @@ describe('예약하기 페이지', () => {
   });
 
   test('필터 조건이 URL 쿼리에 반영된다', async () => {
-    renderApp('/booking?startTime=09%3A00&endTime=10%3A00&attendees=5');
+    // nuqs reads from window.location, so we need to set it before rendering
+    window.history.replaceState({}, '', '/booking?startTime=09:00&endTime=10:00&attendees=5');
+
+    renderApp('/booking?startTime=09:00&endTime=10:00&attendees=5');
 
     await waitForPageLoad();
 
