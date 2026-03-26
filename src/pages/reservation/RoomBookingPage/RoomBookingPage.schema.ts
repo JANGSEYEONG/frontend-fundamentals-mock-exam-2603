@@ -14,3 +14,14 @@ export const bookingFilterSchema = z.object({
 });
 
 export type BookingFilter = z.output<typeof bookingFilterSchema>;
+
+export const bookingFilterValidationSchema = z
+  .object({
+    startTime: z.string(),
+    endTime: z.string(),
+    attendees: z.number().int().min(1, '참석 인원은 1명 이상이어야 합니다.'),
+  })
+  .refine(data => data.endTime > data.startTime, {
+    message: '종료 시간은 시작 시간보다 늦어야 합니다.',
+    path: ['endTime'],
+  });

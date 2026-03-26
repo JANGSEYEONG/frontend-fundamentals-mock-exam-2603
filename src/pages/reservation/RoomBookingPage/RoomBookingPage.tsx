@@ -82,17 +82,7 @@ export function RoomBookingPage() {
     setErrorMessage(null);
   };
 
-  // 입력 검증
-  const hasTimeInputs = bookingFilter.startTime !== '' && bookingFilter.endTime !== '';
-  let validationError: string | null = null;
-  if (hasTimeInputs) {
-    if (bookingFilter.endTime <= bookingFilter.startTime) {
-      validationError = '종료 시간은 시작 시간보다 늦어야 합니다.';
-    } else if (bookingFilter.attendees < 1) {
-      validationError = '참석 인원은 1명 이상이어야 합니다.';
-    }
-  }
-  const isFilterComplete = hasTimeInputs && !validationError;
+  const filterComplete = bookingFilterValidationSchema.safeParse(bookingFilter);
 
   return (
     <div>
@@ -179,10 +169,10 @@ export function RoomBookingPage() {
           </div>
         </Section>
 
-        {validationError && (
+        {!filterComplete.success && (
           <div css={pageStyles.inset}>
             <Spacing size={8} />
-            <ErrorText message={validationError} />
+            <ErrorText message={filterComplete.error.issues[0]?.message} />
           </div>
         )}
 
@@ -190,7 +180,7 @@ export function RoomBookingPage() {
         <Border size={8} />
         <Spacing size={24} />
 
-        {isFilterComplete && (
+        {filterComplete.success && (
           <>
             <AvailableReservationSection
               filter={bookingFilter}
