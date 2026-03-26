@@ -24,12 +24,13 @@ import { TimeSelector } from 'shared/components/TimeSelector';
 import { EquipmentSelector } from './components/EquipmentSelector';
 import { PreferredFloorSelector } from './components/PreferredFloorSelector';
 import { useBookingFilter } from './useBookingFilter';
+import { useSelectedRoomId } from './useSelectedRoomId';
 export function RoomBookingPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
   const [filter, setFilter] = useBookingFilter();
-  const [selectedRoomId, setSelectedRoomId] = useState<string | null>(null);
+  const [selectedRoomId, setSelectedRoomId] = useSelectedRoomId();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const createMutation = useMutation((data: Omit<Reservation, 'id'>) => createReservation(data), {
