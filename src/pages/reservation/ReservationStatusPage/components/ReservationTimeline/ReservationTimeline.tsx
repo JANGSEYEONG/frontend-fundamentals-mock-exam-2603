@@ -65,7 +65,7 @@ function ReservationTooltip({ reservation }: { reservation: Reservation }) {
       </div>
       <div>{reservation.attendees}명</div>
       {reservation.equipment.length > 0 && (
-        <div>{reservation.equipment.map((e: string) => EQUIPMENT_LABELS[e]).join(', ')}</div>
+        <div>{reservation.equipment.map((equipment: string) => EQUIPMENT_LABELS[equipment]).join(', ')}</div>
       )}
     </div>
   );

@@ -83,24 +83,13 @@ function MyReservationSection() {
 
   return (
     <>
-      {(() => {
-        if (message) {
-          return (
-            <div css={pageStyles.inset}>
-              <MessageBanner message={message} />
-              <Spacing size={12} />
-            </div>
-          );
-        }
-        if (locationMessage) {
-          return (
-            <div css={pageStyles.inset}>
-              <MessageBanner message={{ type: 'success', text: locationMessage.text }} />
-              <Spacing size={12} />
-            </div>
-          );
-        }
-      })()}
+      <div css={pageStyles.inset}>
+        {(() => {
+          if (message) return <MessageBanner message={message} />;
+          if (locationMessage) return <MessageBanner message={{ type: 'success', text: locationMessage.text }} />;
+        })()}
+        <Spacing size={12} />
+      </div>
       <Section
         label="내 예약"
         right={
