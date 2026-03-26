@@ -65,7 +65,9 @@ function MyReservationSection() {
   const { data: myReservationList = [] } = useQuery(getMyReservationsQueryOptions());
 
   const locationMessage = useLocationStateMessage();
-  const [message, setMessage] = useState<Message | null>(null);
+  const [message, setMessage] = useState<Message | null>(() =>
+    locationMessage ? { type: 'success', text: locationMessage.text } : null
+  );
 
   const queryClient = useQueryClient();
   const cancelMutation = useMutation(cancelReservation, {
@@ -82,13 +84,12 @@ function MyReservationSection() {
 
   return (
     <>
-      <div css={pageStyles.inset}>
-        {(() => {
-          if (message) return <MessageBanner message={message} />;
-          if (locationMessage) return <MessageBanner message={{ type: 'success', text: locationMessage.text }} />;
-        })()}
-        <Spacing size={12} />
-      </div>
+      {message && (
+        <div css={pageStyles.inset}>
+          <MessageBanner message={message} />
+          <Spacing size={12} />
+        </div>
+      )}
       <Section
         label="내 예약"
         right={
