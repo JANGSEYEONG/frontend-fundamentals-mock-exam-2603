@@ -16,7 +16,7 @@ import { createLocationStateMessage } from 'shared/hooks/useLocationStateMessage
 import { Reservation } from '../models';
 import { getMyReservationsQueryOptions, getReservationsQueryOptions } from '../queries';
 import { AvailableReservationSection } from './components/AvailableReservationSection';
-import { BookingFilter } from './RoomBookingPage.schema';
+import { BookingFilter, bookingFilterValidationSchema } from './RoomBookingPage.schema';
 import * as styles from './RoomBookingPage.styles';
 
 import { DateSelector } from 'shared/components/DateSelector';
@@ -29,7 +29,7 @@ export function RoomBookingPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  const [filter, setFilter] = useBookingFilter();
+  const [bookingFilter, setBookingFilter] = useBookingFilter();
   const [selectedRoomId, setSelectedRoomId] = useSelectedRoomId();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -57,42 +57,42 @@ export function RoomBookingPage() {
     },
   });
 
-  const handleFilterChange = (patch: Partial<BookingFilter>) => {
-    setFilter(patch);
-    setSelectedRoomId(null);
-    setErrorMessage(null);
-  };
-
-  // 입력 검증
-  const hasTimeInputs = filter.startTime !== '' && filter.endTime !== '';
-  let validationError: string | null = null;
-  if (hasTimeInputs) {
-    if (filter.endTime <= filter.startTime) {
-      validationError = '종료 시간은 시작 시간보다 늦어야 합니다.';
-    } else if (filter.attendees < 1) {
-      validationError = '참석 인원은 1명 이상이어야 합니다.';
-    }
-  }
-  const isFilterComplete = hasTimeInputs && !validationError;
-
   const handleBook = () => {
     if (!selectedRoomId) {
       setErrorMessage('회의실을 선택해주세요.');
       return;
     }
-    if (!filter.startTime || !filter.endTime) {
+    if (!bookingFilter.startTime || !bookingFilter.endTime) {
       setErrorMessage('시작 시간과 종료 시간을 선택해주세요.');
       return;
     }
     createMutation.mutate({
       roomId: selectedRoomId,
-      date: filter.date,
-      start: filter.startTime,
-      end: filter.endTime,
-      attendees: filter.attendees,
-      equipment: filter.equipment,
+      date: bookingFilter.date,
+      start: bookingFilter.startTime,
+      end: bookingFilter.endTime,
+      attendees: bookingFilter.attendees,
+      equipment: bookingFilter.equipment,
     });
   };
+
+  const handleFilterChange = (patch: Partial<BookingFilter>) => {
+    setBookingFilter(patch);
+    setSelectedRoomId(null);
+    setErrorMessage(null);
+  };
+
+  // 입력 검증
+  const hasTimeInputs = bookingFilter.startTime !== '' && bookingFilter.endTime !== '';
+  let validationError: string | null = null;
+  if (hasTimeInputs) {
+    if (bookingFilter.endTime <= bookingFilter.startTime) {
+      validationError = '종료 시간은 시작 시간보다 늦어야 합니다.';
+    } else if (bookingFilter.attendees < 1) {
+      validationError = '참석 인원은 1명 이상이어야 합니다.';
+    }
+  }
+  const isFilterComplete = hasTimeInputs && !validationError;
 
   return (
     <div>
@@ -114,7 +114,7 @@ export function RoomBookingPage() {
         <Section label="예약 조건">
           <FormField label="날짜">
             <DateSelector
-              value={filter.date}
+              value={bookingFilter.date}
               onChange={value => handleFilterChange({ date: value })}
               min={format(new Date(), 'yyyy-MM-dd')}
               aria-label="날짜"
@@ -127,7 +127,7 @@ export function RoomBookingPage() {
             <FormField label="시작 시간">
               <TimeSelector
                 aria-label="시작 시간"
-                value={filter.startTime}
+                value={bookingFilter.startTime}
                 onChange={value => handleFilterChange({ startTime: value })}
                 start="09:00"
                 end="19:30"
@@ -138,7 +138,7 @@ export function RoomBookingPage() {
             <FormField label="종료 시간">
               <TimeSelector
                 aria-label="종료 시간"
-                value={filter.endTime}
+                value={bookingFilter.endTime}
                 onChange={value => handleFilterChange({ endTime: value })}
                 start="09:30"
                 end="20:00"
@@ -154,14 +154,14 @@ export function RoomBookingPage() {
               <Input
                 type="number"
                 min={1}
-                value={filter.attendees}
+                value={bookingFilter.attendees}
                 onChange={e => handleFilterChange({ attendees: Math.max(1, Number(e.target.value)) })}
                 aria-label="참석 인원"
               />
             </FormField>
 
             <FormField label="선호 층">
-              <PreferredFloorSelector value={filter.floor} onChange={floor => handleFilterChange({ floor })} />
+              <PreferredFloorSelector value={bookingFilter.floor} onChange={floor => handleFilterChange({ floor })} />
             </FormField>
           </div>
 
@@ -170,7 +170,7 @@ export function RoomBookingPage() {
           <div>
             <FormField label="필요 장비">
               <EquipmentSelector
-                value={filter.equipment}
+                value={bookingFilter.equipment}
                 onChange={equipment => {
                   handleFilterChange({ equipment });
                 }}
@@ -193,7 +193,7 @@ export function RoomBookingPage() {
         {isFilterComplete && (
           <>
             <AvailableReservationSection
-              filter={filter}
+              filter={bookingFilter}
               selectedRoomId={selectedRoomId}
               onSelect={roomId => {
                 setSelectedRoomId(roomId);
