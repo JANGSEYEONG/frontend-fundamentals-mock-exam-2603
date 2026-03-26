@@ -15,3 +15,9 @@ export const backButton = css`
     color: ${colors.grey900};
   }
 `;
+
+export const filterRowStyle = css`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+`;

@@ -1,1 +1,0 @@
-export { BookingFilterForm } from './BookingFilterForm';

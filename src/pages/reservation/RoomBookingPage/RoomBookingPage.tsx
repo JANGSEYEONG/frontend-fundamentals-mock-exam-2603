@@ -2,12 +2,15 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Border, Button, Spacing, Text } from '_tosslib/components';
 import { colors } from '_tosslib/constants/colors';
 import axios from 'axios';
+import { format } from 'date-fns';
 import { isNil } from 'es-toolkit';
 import { createReservation } from 'pages/remotes';
 import qs from 'qs';
 import { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ErrorText } from 'shared/components/ErrorText';
+import { FormField } from 'shared/components/FormField';
+import { Input } from 'shared/components/Input';
 import { MessageBanner } from 'shared/components/MessageBanner';
 import { PageLayout } from 'shared/components/PageLayout';
 import * as pageStyles from 'shared/components/PageLayout/PageLayout.styles';
@@ -15,11 +18,14 @@ import { Section } from 'shared/components/Section';
 import { createLocationStateMessage } from 'shared/hooks/useLocationStateMessage';
 import { Reservation, Room } from '../models';
 import { getMyReservationsQueryOptions, getReservationsQueryOptions, getRoomsQueryOptions } from '../queries';
-import { BookingFilterForm } from './components/BookingFilterForm';
 import { RoomList } from './components/RoomList';
 import { BookingFilter, bookingFilterSchema } from './RoomBookingPage.schema';
 import * as styles from './RoomBookingPage.styles';
 
+import { DateSelector } from 'shared/components/DateSelector';
+import { TimeSelector } from 'shared/components/TimeSelector';
+import { EquipmentSelector } from './components/EquipmentSelector';
+import { PreferredFloorSelector } from './components/PreferredFloorSelector';
 export function RoomBookingPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -120,9 +126,72 @@ export function RoomBookingPage() {
 
         <Spacing size={24} />
 
-        {/* 예약 조건 입력 */}
         <Section label="예약 조건">
-          <BookingFilterForm filter={filter} onChange={handleFilterChange} />
+          <FormField label="날짜">
+            <DateSelector
+              value={filter.date}
+              onChange={value => handleFilterChange({ date: value })}
+              min={format(new Date(), 'yyyy-MM-dd')}
+              aria-label="날짜"
+            />
+          </FormField>
+
+          <Spacing size={14} />
+
+          <div css={styles.filterRowStyle}>
+            <FormField label="시작 시간">
+              <TimeSelector
+                aria-label="시작 시간"
+                value={filter.startTime}
+                onChange={value => handleFilterChange({ startTime: value })}
+                start="09:00"
+                end="19:30"
+                step={30}
+              />
+            </FormField>
+
+            <FormField label="종료 시간">
+              <TimeSelector
+                aria-label="종료 시간"
+                value={filter.endTime}
+                onChange={value => handleFilterChange({ endTime: value })}
+                start="09:30"
+                end="20:00"
+                step={30}
+              />
+            </FormField>
+          </div>
+
+          <Spacing size={14} />
+
+          <div css={styles.filterRowStyle}>
+            <FormField label="참석 인원">
+              <Input
+                type="number"
+                min={1}
+                value={filter.attendees}
+                onChange={e => handleFilterChange({ attendees: Math.max(1, Number(e.target.value)) })}
+                aria-label="참석 인원"
+              />
+            </FormField>
+
+            <FormField label="선호 층">
+              <PreferredFloorSelector value={filter.floor} onChange={floor => handleFilterChange({ floor })} />
+            </FormField>
+          </div>
+
+          <Spacing size={14} />
+
+          <div>
+            <FormField label="필요 장비">
+              <EquipmentSelector
+                value={filter.equipment}
+                onChange={equipment => {
+                  handleFilterChange({ equipment });
+                }}
+              />
+            </FormField>
+          </div>
         </Section>
 
         {validationError && (
@@ -136,7 +205,6 @@ export function RoomBookingPage() {
         <Border size={8} />
         <Spacing size={24} />
 
-        {/* 예약 가능 회의실 목록 */}
         {isFilterComplete && (
           <>
             <Section
