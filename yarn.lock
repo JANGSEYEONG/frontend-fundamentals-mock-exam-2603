@@ -1006,14 +1006,19 @@
   resolved "https://registry.npmjs.org/@standard-schema/spec/-/spec-1.1.0.tgz"
   integrity sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==
 
+"@suspensive/react-query@npm:@suspensive/react-query-4":
+  version "3.20.0"
+  resolved "https://registry.yarnpkg.com/@suspensive/react-query-4/-/react-query-4-3.20.0.tgz#ecee218e655e8f012992f083d6fba366e58db977"
+  integrity sha512-A/+Ud1f0V54KsOlds6IBIyiKrzR7709zh2B/7A03gRkjf2tc2L/U3mQvSjbinfPEA4dX8XSadXHoBmdeGMdqCQ==
+
 "@tanstack/query-core@4.43.0":
   version "4.43.0"
   resolved "https://registry.npmjs.org/@tanstack/query-core/-/query-core-4.43.0.tgz"
   integrity sha512-m1QeUUIpNXDYxmfuuWNFZLky0EwVmbE0hj8ulZ2nIGA1183raJgDCn0IKlxug80NotRqzodxAaoYTKHbE1/P/Q==
 
-"@tanstack/react-query@^4.43.0":
+"@tanstack/react-query@4":
   version "4.43.0"
-  resolved "https://registry.npmjs.org/@tanstack/react-query/-/react-query-4.43.0.tgz"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-4.43.0.tgz#f993211864c2070ba7f764971901bd3e60c886d1"
   integrity sha512-Lj8luFKHQL27oZbw5T8xdTbsfAPp2+bCtSCa2bAVvIwnvNfRP0hpB1GxfKFgCktat8lPcYBHAu8eMTXzz2sQtQ==
   dependencies:
     "@tanstack/query-core" "4.43.0"
