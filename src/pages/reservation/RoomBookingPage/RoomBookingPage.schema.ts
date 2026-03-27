@@ -19,9 +19,22 @@ export const bookingFilterValidationSchema = z
   .object({
     startTime: z.string(),
     endTime: z.string(),
-    attendees: z.number().int().min(1, '참석 인원은 1명 이상이어야 합니다.'),
+    attendees: z.number().int(),
   })
-  .refine(data => data.endTime > data.startTime, {
-    message: '종료 시간은 시작 시간보다 늦어야 합니다.',
-    path: ['endTime'],
+  .superRefine((data, ctx) => {
+    if (data.endTime && data.startTime && data.endTime <= data.startTime) {
+      ctx.addIssue({
+        code: 'custom',
+        message: '종료 시간은 시작 시간보다 늦어야 합니다.',
+        path: ['endTime'],
+      });
+    }
+
+    if (data.attendees < 1) {
+      ctx.addIssue({
+        code: 'custom',
+        message: '참석 인원은 1명 이상이어야 합니다.',
+        path: ['attendees'],
+      });
+    }
   });
