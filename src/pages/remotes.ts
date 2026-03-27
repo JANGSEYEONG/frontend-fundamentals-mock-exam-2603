@@ -1,25 +1,30 @@
 import { http } from 'pages/http';
 import { Reservation, Room } from './reservation/models';
+import { AxiosError } from 'axios';
 
-export function getRooms() {
+export async function getRooms() {
   return http.get<Room[]>('/api/rooms');
 }
 
-export function getReservations(date: string) {
+export async function getReservations(date: string) {
   return http.get<Reservation[]>(`/api/reservations?date=${date}`);
 }
 
-export function createReservation(data: Omit<Reservation, 'id'>) {
-  return http.post<typeof data, { ok: boolean; reservation?: unknown; code?: string; message?: string }>(
+export async function createReservation(data: Omit<Reservation, 'id'>) {
+  const result = await http.post<typeof data, { ok: boolean; reservation?: unknown; code?: string; message?: string }>(
     '/api/reservations',
     data
   );
+  if (!result.ok) {
+    throw new Error(result.message ?? '예약에 실패했습니다.');
+  }
+  return result;
 }
 
-export function getMyReservations() {
+export async function getMyReservations() {
   return http.get<Reservation[]>('/api/my-reservations');
 }
 
-export function cancelReservation(id: string) {
+export async function cancelReservation(id: string) {
   return http.delete<{ ok: boolean }>(`/api/reservations/${id}`);
 }

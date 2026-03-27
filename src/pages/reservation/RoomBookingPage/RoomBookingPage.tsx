@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQueryClient } from '@tanstack/react-query';
 import { Border, Button, Spacing } from '_tosslib/components';
 import axios from 'axios';
 import { format } from 'date-fns';
@@ -19,6 +19,7 @@ import { AvailableReservationSection } from './components/AvailableReservationSe
 import { BookingFilter, bookingFilterValidationSchema } from './RoomBookingPage.schema';
 import * as styles from './RoomBookingPage.styles';
 
+import { Mutation } from '@suspensive/react-query';
 import { DateSelector } from 'shared/components/DateSelector';
 import { TimeSelector } from 'shared/components/TimeSelector';
 import { EquipmentSelector } from './components/EquipmentSelector';
@@ -32,49 +33,6 @@ export function RoomBookingPage() {
   const [bookingFilter, setBookingFilter] = useBookingFilter();
   const [selectedRoomId, setSelectedRoomId] = useSelectedRoomId();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const createMutation = useMutation((data: Omit<Reservation, 'id'>) => createReservation(data), {
-    onSuccess: (data, variables) => {
-      if (data.ok) {
-        navigate('/', { state: createLocationStateMessage({ text: '예약이 완료되었습니다!' }) });
-        return;
-      }
-
-      setErrorMessage(data.message ?? '예약에 실패했습니다.');
-      setSelectedRoomId(null);
-
-      queryClient.invalidateQueries({ queryKey: getReservationsQueryOptions(variables.date).queryKey });
-      queryClient.invalidateQueries({ queryKey: getMyReservationsQueryOptions().queryKey });
-    },
-    onError: (error: unknown) => {
-      let serverMessage = '예약에 실패했습니다.';
-      if (axios.isAxiosError(error)) {
-        const data = error.response?.data as { message?: string } | undefined;
-        serverMessage = data?.message ?? serverMessage;
-      }
-      setErrorMessage(serverMessage);
-      setSelectedRoomId(null);
-    },
-  });
-
-  const handleBook = () => {
-    if (!selectedRoomId) {
-      setErrorMessage('회의실을 선택해주세요.');
-      return;
-    }
-    if (!bookingFilter.startTime || !bookingFilter.endTime) {
-      setErrorMessage('시작 시간과 종료 시간을 선택해주세요.');
-      return;
-    }
-    createMutation.mutate({
-      roomId: selectedRoomId,
-      date: bookingFilter.date,
-      start: bookingFilter.startTime,
-      end: bookingFilter.endTime,
-      attendees: bookingFilter.attendees,
-      equipment: bookingFilter.equipment,
-    });
-  };
 
   const handleFilterChange = (patch: Partial<BookingFilter>) => {
     setBookingFilter(patch);
@@ -193,9 +151,47 @@ export function RoomBookingPage() {
             <Spacing size={16} />
 
             <div css={pageStyles.inset}>
-              <Button display="full" onClick={handleBook} disabled={createMutation.isPending}>
-                {createMutation.isPending ? '예약 중...' : '확정'}
-              </Button>
+              <Mutation mutationFn={(data: Omit<Reservation, 'id'>) => createReservation(data)}>
+                {createMutation => (
+                  <Button
+                    display="full"
+                    onClick={async () => {
+                      if (!selectedRoomId) {
+                        setErrorMessage('회의실을 선택해주세요.');
+                        return;
+                      }
+                      if (!bookingFilter.startTime || !bookingFilter.endTime) {
+                        setErrorMessage('시작 시간과 종료 시간을 선택해주세요.');
+                        return;
+                      }
+                      try {
+                        await createMutation.mutateAsync({
+                          roomId: selectedRoomId,
+                          date: bookingFilter.date,
+                          start: bookingFilter.startTime,
+                          end: bookingFilter.endTime,
+                          attendees: bookingFilter.attendees,
+                          equipment: bookingFilter.equipment,
+                        });
+
+                        navigate('/', { state: createLocationStateMessage({ text: '예약이 완료되었습니다!' }) });
+
+                        queryClient.invalidateQueries({
+                          queryKey: getReservationsQueryOptions(bookingFilter.date).queryKey,
+                        });
+                        queryClient.invalidateQueries({ queryKey: getMyReservationsQueryOptions().queryKey });
+                      } catch (error) {
+                        setErrorMessage(getErrorMessage(error) ?? '예약에 실패했습니다.');
+                      } finally {
+                        setSelectedRoomId(null);
+                      }
+                    }}
+                    disabled={createMutation.isPending}
+                  >
+                    {createMutation.isPending ? '예약 중...' : '확정'}
+                  </Button>
+                )}
+              </Mutation>
             </div>
           </>
         )}
@@ -203,3 +199,14 @@ export function RoomBookingPage() {
     </div>
   );
 }
+
+const getErrorMessage = (error: unknown) => {
+  if (axios.isAxiosError(error)) {
+    const data = error.response?.data as { message?: string } | undefined;
+    return data?.message;
+  }
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return null;
+};
