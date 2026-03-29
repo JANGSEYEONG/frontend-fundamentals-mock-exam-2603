@@ -4,13 +4,13 @@ import { getReservationsQueryOptions, getRoomsQueryOptions } from 'pages/reserva
 import { useState } from 'react';
 
 import { TimelineGrid } from 'shared/components/TimelineGrid';
-import * as styles from './ReservationTimeline.styles';
+import * as styles from './DailyReservationTimeline.styles';
 
-interface ReservationTimelineProps {
+interface DailyReservationTimelineProps {
   date: string;
 }
 
-export function ReservationTimeline({ date }: ReservationTimelineProps) {
+export function DailyReservationTimeline({ date }: DailyReservationTimelineProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [{ data: rooms = [] }, { data: reservations = [] }] = useQueries({
     queries: [
