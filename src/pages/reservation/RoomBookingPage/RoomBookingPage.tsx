@@ -142,8 +142,6 @@ export function RoomBookingPage() {
         {hasTimeRangeSelected(bookingFilter) && filterComplete.success && (
           <>
             <AvailableReservationSection
-              filter={bookingFilter}
-              selectedRoomId={selectedRoomId}
               onSelect={roomId => {
                 setSelectedRoomId(roomId);
               }}

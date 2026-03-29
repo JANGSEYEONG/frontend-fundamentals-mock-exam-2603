@@ -9,13 +9,16 @@ import { Section } from 'shared/components/Section';
 import { EQUIPMENT_LABELS, Reservation, Room } from '../../../models';
 import { BookingFilter } from '../../RoomBookingPage.schema';
 import * as styles from './AvailableReservationSection.styles';
+import { useBookingFilter } from '../../hooks/useBookingFilter';
+import { useSelectedRoomId } from '../../hooks/useSelectedRoomId';
 
 interface AvailableReservationSectionProps {
-  filter: BookingFilter; // TODO: filter도 직접 접근 가능하게? 바꿔?
-  selectedRoomId: string | null;
   onSelect: (roomId: string) => void;
 }
-export function AvailableReservationSection({ filter, selectedRoomId, onSelect }: AvailableReservationSectionProps) {
+export function AvailableReservationSection({ onSelect }: AvailableReservationSectionProps) {
+  const [filter] = useBookingFilter();
+  const [selectedRoomId] = useSelectedRoomId();
+
   const [{ data: rooms = [] }, { data: reservations = [] }] = useQueries({
     queries: [
       getRoomsQueryOptions(),
