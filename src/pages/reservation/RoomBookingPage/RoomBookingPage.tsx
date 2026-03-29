@@ -1,6 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { Border, Button, Spacing } from '_tosslib/components';
-import axios from 'axios';
 import { format } from 'date-fns';
 import { createReservation } from 'pages/remotes';
 import { useState } from 'react';
@@ -16,12 +15,13 @@ import { createLocationStateMessage } from 'shared/hooks/useLocationStateMessage
 import { Reservation } from '../models';
 import { getMyReservationsQueryOptions, getReservationsQueryOptions } from '../queries';
 import { AvailableReservationSection } from './components/AvailableReservationSection';
-import { BookingFilter, bookingFilterValidationSchema } from './RoomBookingPage.schema';
+import { BookingFilter, bookingFilterValidationSchema, hasTimeRangeSelected } from './RoomBookingPage.schema';
 import * as styles from './RoomBookingPage.styles';
 
 import { Mutation } from '@suspensive/react-query';
 import { DateSelector } from 'shared/components/DateSelector';
 import { TimeSelector } from 'shared/components/TimeSelector';
+import { getErrorMessage } from 'shared/utils/getErrorMessage';
 import { EquipmentSelector } from './components/EquipmentSelector';
 import { PreferredFloorSelector } from './components/PreferredFloorSelector';
 import { useBookingFilter } from './hooks/useBookingFilter';
@@ -32,6 +32,7 @@ export function RoomBookingPage() {
 
   const [bookingFilter, setBookingFilter] = useBookingFilter();
   const [selectedRoomId, setSelectedRoomId] = useSelectedRoomId();
+
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleFilterChange = (patch: Partial<BookingFilter>) => {
@@ -138,7 +139,7 @@ export function RoomBookingPage() {
         <Border size={8} />
         <Spacing size={24} />
 
-        {filterComplete.success && (
+        {hasTimeRangeSelected(bookingFilter) && filterComplete.success && (
           <>
             <AvailableReservationSection
               filter={bookingFilter}
@@ -156,23 +157,8 @@ export function RoomBookingPage() {
                   <Button
                     display="full"
                     onClick={async () => {
-                      if (!selectedRoomId) {
-                        setErrorMessage('회의실을 선택해주세요.');
-                        return;
-                      }
-                      if (!bookingFilter.startTime || !bookingFilter.endTime) {
-                        setErrorMessage('시작 시간과 종료 시간을 선택해주세요.');
-                        return;
-                      }
                       try {
-                        await createMutation.mutateAsync({
-                          roomId: selectedRoomId,
-                          date: bookingFilter.date,
-                          start: bookingFilter.startTime,
-                          end: bookingFilter.endTime,
-                          attendees: bookingFilter.attendees,
-                          equipment: bookingFilter.equipment,
-                        });
+                        await createMutation.mutateAsync(getCreateReservationParams({ selectedRoomId, bookingFilter }));
 
                         navigate('/', { state: createLocationStateMessage({ text: '예약이 완료되었습니다!' }) });
 
@@ -200,13 +186,22 @@ export function RoomBookingPage() {
   );
 }
 
-const getErrorMessage = (error: unknown) => {
-  if (axios.isAxiosError(error)) {
-    const data = error.response?.data as { message?: string } | undefined;
-    return data?.message;
-  }
-  if (error instanceof Error) {
-    return error.message;
-  }
-  return null;
+const getCreateReservationParams = ({
+  selectedRoomId,
+  bookingFilter,
+}: {
+  selectedRoomId: string | null;
+  bookingFilter: BookingFilter;
+}): Omit<Reservation, 'id'> => {
+  if (!selectedRoomId) throw new Error('회의실을 선택해주세요.');
+  if (!hasTimeRangeSelected(bookingFilter)) throw new Error('시작 시간과 종료 시간을 선택해주세요.');
+
+  return {
+    roomId: selectedRoomId,
+    date: bookingFilter.date,
+    start: bookingFilter.startTime,
+    end: bookingFilter.endTime,
+    attendees: bookingFilter.attendees,
+    equipment: bookingFilter.equipment,
+  };
 };

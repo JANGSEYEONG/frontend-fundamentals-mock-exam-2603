@@ -38,3 +38,13 @@ export const bookingFilterValidationSchema = z
       });
     }
   });
+
+export const hasTimeRangeSelected = (filter: BookingFilter) => {
+  return bookingFilterSchema
+    .pick({ startTime: true, endTime: true })
+    .extend({
+      startTime: z.string().min(1),
+      endTime: z.string().min(1),
+    })
+    .safeParse(filter).success;
+};

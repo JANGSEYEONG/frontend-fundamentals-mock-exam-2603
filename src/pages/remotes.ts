@@ -1,6 +1,5 @@
 import { http } from 'pages/http';
 import { Reservation, Room } from './reservation/models';
-import { AxiosError } from 'axios';
 
 export async function getRooms() {
   return http.get<Room[]>('/api/rooms');
